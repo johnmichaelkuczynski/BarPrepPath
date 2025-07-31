@@ -141,22 +141,28 @@ export function ChatSidebar({ userId, selectedProvider }: ChatSidebarProps) {
 
         {/* Chat Input */}
         <div className="p-4 border-t border-gray-200">
-          <div className="flex space-x-2">
-            <Input
+          <div className="space-y-3">
+            <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask about law concepts, study strategies..."
-              className="flex-1"
+              placeholder="Ask about legal concepts, study strategies, or specific questions..."
+              className="w-full min-h-[100px] p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               disabled={sendMessage.isPending}
             />
-            <Button
-              onClick={handleSendMessage}
-              disabled={!message.trim() || sendMessage.isPending}
-              className="bg-primary hover:bg-blue-700"
-            >
-              <i className="fas fa-paper-plane"></i>
-            </Button>
+            <div className="flex justify-end">
+              <Button
+                onClick={handleSendMessage}
+                disabled={!message.trim() || sendMessage.isPending}
+                className="bg-blue-600 hover:bg-blue-700 px-6"
+              >
+                {sendMessage.isPending ? (
+                  <><i className="fas fa-spinner fa-spin mr-2"></i>Sending...</>
+                ) : (
+                  <><i className="fas fa-paper-plane mr-2"></i>Send</>
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       </CardContent>
