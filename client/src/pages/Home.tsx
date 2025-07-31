@@ -22,6 +22,8 @@ export default function Home() {
   const [currentResponse, setCurrentResponse] = useState<QuestionResponse | null>(null);
   const [activeTab, setActiveTab] = useState('diagnostic');
   const [isGeneratingQuestion, setIsGeneratingQuestion] = useState(false);
+  const [testMode, setTestMode] = useState<'practice' | 'diagnostic'>('diagnostic');
+  const [allResponses, setAllResponses] = useState<QuestionResponse[]>([]);
   
   // Mock user ID - in a real app this would come from authentication
   const userId = "user-123";
@@ -57,6 +59,10 @@ export default function Home() {
   const startDiagnosticTest = async () => {
     try {
       setIsGeneratingQuestion(true);
+      setTestMode('diagnostic');
+      setAllResponses([]);
+      setShowExplanation(false);
+      
       const session = await createTestSession.mutateAsync({
         userId,
         testType: 'diagnostic',
@@ -70,6 +76,33 @@ export default function Home() {
       toast({
         title: "Error", 
         description: "Failed to start diagnostic test. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingQuestion(false);
+    }
+  };
+
+  const startPracticeQuestion = async () => {
+    try {
+      setIsGeneratingQuestion(true);
+      setTestMode('practice');
+      setAllResponses([]);
+      setShowExplanation(false);
+      
+      const session = await createTestSession.mutateAsync({
+        userId,
+        testType: 'practice',
+        llmProvider: selectedProvider,
+        totalQuestions: 1,
+      });
+
+      setCurrentSession(session);
+      await generateNextQuestion(session, 1);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate practice question.",
         variant: "destructive",
       });
     } finally {
@@ -127,8 +160,29 @@ export default function Home() {
         timeSpent,
       });
 
-      setCurrentResponse(response);
-      setShowExplanation(true);
+      if (testMode === 'diagnostic') {
+        // In diagnostic mode, store response and move to next question immediately
+        setAllResponses(prev => [...prev, response]);
+        setCurrentResponse(null);
+        setShowExplanation(false);
+        
+        const nextQuestionNumber = currentQuestionNumber + 1;
+        if (nextQuestionNumber <= (currentSession.totalQuestions || 20)) {
+          generateNextQuestion(currentSession, nextQuestionNumber);
+        } else {
+          // Test completed - show all results
+          setShowExplanation(true);
+          setCurrentResponse(response);
+          toast({
+            title: "Diagnostic Test Completed!",
+            description: `You answered ${currentSession.totalQuestions || 20} questions. Review your results below.`,
+          });
+        }
+      } else {
+        // In practice mode, show explanation immediately
+        setCurrentResponse(response);
+        setShowExplanation(true);
+      }
     } catch (error) {
       toast({
         title: "Error",
@@ -141,6 +195,16 @@ export default function Home() {
   const handleNextQuestion = () => {
     if (!currentSession) return;
 
+    if (testMode === 'diagnostic' && currentQuestionNumber >= (currentSession.totalQuestions || 20)) {
+      // Reset for new test
+      setCurrentSession(null);
+      setCurrentQuestion(null);
+      setAllResponses([]);
+      setShowExplanation(false);
+      setActiveTab('analytics');
+      return;
+    }
+
     const nextQuestionNumber = currentQuestionNumber + 1;
     if (nextQuestionNumber <= (currentSession.totalQuestions || 20)) {
       generateNextQuestion(currentSession, nextQuestionNumber);
@@ -148,10 +212,11 @@ export default function Home() {
       // Test completed
       toast({
         title: "Test Completed!",
-        description: "You have completed the diagnostic test. Check the analytics tab to see your results.",
+        description: "Check the analytics tab to see your results.",
       });
       setCurrentSession(null);
       setCurrentQuestion(null);
+      setShowExplanation(false);
     }
   };
 
@@ -302,10 +367,23 @@ export default function Home() {
                 ) : currentQuestion && currentSession ? (
                   <div className="space-y-6">
                     <div className="text-center">
-                      <h2 className="text-3xl font-bold text-gray-900 mb-2">Diagnostic Test</h2>
-                      <p className="text-lg text-gray-600 mb-6">
-                        Question {currentQuestionNumber} of {currentSession.totalQuestions || 20} • Pass Probability: {Math.round((analyticsData?.passProbability || 0))}%
-                      </p>
+                      <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                        {testMode === 'diagnostic' ? 'Diagnostic Test' : 'Practice Question'}
+                      </h2>
+                      {testMode === 'diagnostic' ? (
+                        <div className="space-y-2">
+                          <p className="text-lg text-gray-600">
+                            Question {currentQuestionNumber} of {currentSession.totalQuestions || 20}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            Answer all questions, then get your full assessment at the end
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="text-lg text-gray-600 mb-6">
+                          Practice with immediate explanations after each answer
+                        </p>
+                      )}
                     </div>
 
                     <QuestionDisplay
@@ -318,34 +396,93 @@ export default function Home() {
                       response={currentResponse || undefined}
                     />
 
-                    {showExplanation && (
+                    {showExplanation && testMode === 'practice' && (
                       <div className="text-center space-y-4">
-                        <Button onClick={handleNextQuestion} size="lg" className="bg-blue-600 hover:bg-blue-700 px-8">
-                          {currentQuestionNumber < (currentSession?.totalQuestions || 20) ? (
-                            <>Next Question <i className="fas fa-arrow-right ml-2"></i></>
-                          ) : (
-                            "Complete Test"
-                          )}
+                        <Button onClick={startPracticeQuestion} size="lg" className="bg-blue-600 hover:bg-blue-700 px-8">
+                          <i className="fas fa-refresh mr-2"></i>Generate Another Practice Question
                         </Button>
-                        <div className="text-sm text-gray-500">
-                          Or continue to other exam sections using the tabs above
-                        </div>
+                      </div>
+                    )}
+
+                    {showExplanation && testMode === 'diagnostic' && (
+                      <div className="text-center space-y-4">
+                        <Card className="max-w-2xl mx-auto">
+                          <CardContent className="p-8">
+                            <h3 className="text-2xl font-bold text-green-600 mb-4">
+                              <i className="fas fa-check-circle mr-2"></i>Diagnostic Test Complete!
+                            </h3>
+                            <p className="text-gray-600 mb-6">
+                              You answered {allResponses.length + 1} questions. Your performance has been analyzed and added to your analytics.
+                            </p>
+                            <div className="space-y-3">
+                              <Button onClick={() => setActiveTab('analytics')} size="lg" className="bg-green-600 hover:bg-green-700 px-8">
+                                <i className="fas fa-chart-bar mr-2"></i>View Full Results & Analytics
+                              </Button>
+                              <br />
+                              <Button onClick={startDiagnosticTest} variant="outline" size="lg">
+                                <i className="fas fa-redo mr-2"></i>Take Another Diagnostic Test
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
                       </div>
                     )}
                   </div>
                 ) : (
-                  <Card className="max-w-2xl mx-auto">
-                    <CardContent className="p-12 text-center">
-                      <i className="fas fa-exclamation-triangle text-6xl text-red-500 mb-6"></i>
-                      <h3 className="text-2xl font-semibold text-gray-900 mb-4">Unable to Generate Question</h3>
-                      <p className="text-gray-600 mb-6">
-                        There was an error generating your diagnostic question. Please try again.
-                      </p>
-                      <Button onClick={startDiagnosticTest} className="bg-blue-600 hover:bg-blue-700">
-                        Try Again
-                      </Button>
-                    </CardContent>
-                  </Card>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <Card className="hover:shadow-lg transition-shadow">
+                      <CardHeader>
+                        <CardTitle className="flex items-center">
+                          <i className="fas fa-clipboard-check text-blue-600 mr-3"></i>
+                          Full Diagnostic Test
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-gray-600 mb-6">
+                          Take a complete 20-question assessment. Answer all questions first, then get your full evaluation and recommendations.
+                        </p>
+                        <Button
+                          onClick={startDiagnosticTest}
+                          disabled={createTestSession.isPending || isGeneratingQuestion}
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
+                          size="lg"
+                        >
+                          {createTestSession.isPending || isGeneratingQuestion ? (
+                            <><i className="fas fa-spinner fa-spin mr-2"></i>Starting Test...</>
+                          ) : (
+                            <>Start Diagnostic Test</>
+                          )}
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="hover:shadow-lg transition-shadow">
+                      <CardHeader>
+                        <CardTitle className="flex items-center">
+                          <i className="fas fa-graduation-cap text-green-600 mr-3"></i>
+                          Practice Questions
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-gray-600 mb-6">
+                          Practice individual questions with immediate explanations after each answer.
+                        </p>
+                        <Button
+                          onClick={startPracticeQuestion}
+                          disabled={createTestSession.isPending || isGeneratingQuestion}
+                          variant="outline"
+                          className="w-full py-3"
+                          size="lg"
+                        >
+                          {createTestSession.isPending || isGeneratingQuestion ? (
+                            <><i className="fas fa-spinner fa-spin mr-2"></i>Generating...</>
+                          ) : (
+                            <>Start Practice Mode</>
+                          )}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
                 )}
               </TabsContent>
 
