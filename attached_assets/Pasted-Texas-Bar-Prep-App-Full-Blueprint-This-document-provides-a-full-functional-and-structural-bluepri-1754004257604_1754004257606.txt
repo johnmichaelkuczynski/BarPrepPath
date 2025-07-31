@@ -1,0 +1,77 @@
+Texas Bar Prep App – Full Blueprint
+This document provides a full functional and structural blueprint for a comprehensive Texas Bar Prep App. It is designed to simulate, assess, and support study for all three days of the Texas Bar Exam using AI-powered functionality and user analytics.
+App Structure: Tabs & Core Features
+Tab 1: Diagnostic Test
+•	- Mini bar exam (short multi-format test)
+•	- Scoring + progress bar indicating likelihood of passing
+•	- Actionable recommendations with direct links to practice modules
+Tab 2: Full-Length Bar Exam
+•	- Click-to-generate full simulated exam (Days 1–3)
+•	- Timed, scored, and assessed
+•	- Comprehensive results with study plan recommendations
+Tab 3: Day 1 – Legal Writing + Texas Procedure & Evidence
+•	- Full-length MPT-style writing tasks (click-to-generate)
+•	- Individual writing drills (click-to-generate)
+•	- Full short-answer section (20 questions, scored and explained)
+•	- A-la-carte short-answer drills (civil, criminal, or mixed)
+Tab 4: Day 2 – MBE Multiple Choice
+•	- Full 200-question MBE simulator (all 7 subjects)
+•	- Randomized a-la-carte question practice (mixed topics)
+•	- Targeted a-la-carte question practice (user-selected topic)
+Tab 5: Day 3 – Essay (MEE-style)
+•	- Click-to-generate full Day 3 essay exam (6 essays)
+•	- Individual essay generation by subject (e.g., Family Law, Secured Transactions)
+Tab 6: Analytics Dashboard
+•	- Displays score history, topic mastery, answer quality
+•	- Performance over time with visuals
+•	- Estimates user’s probability of passing the bar based on work completed
+Universal Features
+•	- Full answer explanations after each question or essay
+•	- On-demand AI-generated law explanations by topic
+•	- On-demand AI-generated supplemental readings
+•	- For all written responses (short or long): optional AI grading + breakdown of score
+•	- For all long answers: ability to select a paragraph and receive localized feedback + explanations + readings
+Recommended LLMs by Task
+Question/Exam Generation: GPT-4o, Claude 3 Opus, DeepSeek-V2
+Answer Explanations: Claude 3 Opus, GPT-4o
+Law Concept Explanation: Claude 3 Sonnet, GPT-4o, Perplexity
+Auto-Scoring Written Responses: Claude 3 Opus, GPT-4o
+Pass Probability Analytics: Internal logic + optional GPT-4o explanation
+Essay Paragraph Analysis: Claude 3 Opus, GPT-4o
+
+DO NOT EVER SHOW ALERTS SAYING THAT A TEST IS READY; JUST SHOW THE TEST; WHEN THE USER ASKS FOR QUESTIONS/TESTS TO BE GENERATE, THAT MEANS HE WANTS TESTS HE CAN TAKE RIGHT THERE AND HAVE GRADE. THIS IS THE THIRD TIME I HAVE TRIED TO BUILD THIS APP WITH REPLIT; EACH TIME YOU HAVE FAILED UTTERLY; YOU HAVE USED CANNED ANSWERS; YOU HAVE CREATED DUMMY NON-FUNCTIONING BUTTONS; DON’T DO THAT. 
+
+
+ 
+Supplemental Directives and Safeguards
+Strict LLM Selection and Invocation Policy
+
+The app shall never use canned, static, or pre-written logic for any question, answer, explanation, or assessment.
+Every single question, explanation, and grade must be generated live via LLM API call.
+
+- All logic is LLM-driven. No hardcoded responses or rules shall be embedded in the code.
+- Users must be able to choose the exact LLM (OpenAI, Anthropic, DeepSeek, or Perplexity) for each session via a pull-down menu.
+- The Replit agent is strictly prohibited from automatically selecting or rerouting to a different LLM without explicit user instruction.
+- Each LLM-selected task (question generation, grading, answer explanation) must explicitly display which LLM generated the output.
+
+Chat Interface Requirement
+
+A universal AI chat interface must be included in the app.
+- It must allow the user to ask freeform questions (about law or anything else).
+- It must be aware of the app context (bar prep) and reference user progress if relevant.
+- It must clearly indicate which LLM is responding.
+
+Developer Diagnostics
+
+The app must support the generation of specialized diagnostic tests used for development QA and LLM verification.
+These include:
+1. One-question multiple choice diagnostic test
+2. One-question short answer diagnostic test
+3. One-question essay diagnostic test
+4. Three-question diagnostic (1 multiple choice, 1 short answer, 1 essay)
+
+These diagnostics shall be used to ensure:
+- LLMs are generating questions live (no reuse)
+- Grading logic is functioning properly
+- Responses and assessments reflect true LLM behavior
+
