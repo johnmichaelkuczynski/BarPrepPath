@@ -222,6 +222,11 @@ export default function Home() {
 
   const handleDiagnosticTest = async (type: 'single-mc' | 'single-sa' | 'single-essay' | 'three-mixed') => {
     try {
+      setIsGeneratingQuestion(true);
+      setTestMode('practice'); // Quick tests show explanations immediately
+      setAllResponses([]);
+      setShowExplanation(false);
+
       const result = await createDiagnosticTest.mutateAsync({
         type,
         provider: selectedProvider,
@@ -241,6 +246,8 @@ export default function Home() {
         description: "Failed to generate diagnostic test.",
         variant: "destructive",
       });
+    } finally {
+      setIsGeneratingQuestion(false);
     }
   };
 
@@ -501,44 +508,40 @@ export default function Home() {
                           )}
                         </Button>
                         
-                        <div className="text-center">
-                          <p className="text-sm text-gray-500 mb-3">Quick Tests:</p>
-                          <div className="space-y-2">
+                        <div className="border-t pt-4 mt-4">
+                          <p className="text-sm font-medium text-gray-700 mb-3 text-center">Quick Tests (Essential for Development):</p>
+                          <div className="grid grid-cols-2 gap-2">
                             <Button
                               onClick={() => handleDiagnosticTest('single-mc')}
                               variant="outline"
-                              className="w-full"
-                              size="sm"
-                              disabled={createDiagnosticTest.isPending}
+                              className="text-xs py-2"
+                              disabled={createDiagnosticTest.isPending || isGeneratingQuestion}
                             >
-                              Single Multiple Choice
+                              {createDiagnosticTest.isPending ? <i className="fas fa-spinner fa-spin"></i> : "1 Multiple Choice"}
                             </Button>
                             <Button
                               onClick={() => handleDiagnosticTest('single-sa')}
                               variant="outline"
-                              className="w-full"
-                              size="sm"
-                              disabled={createDiagnosticTest.isPending}
+                              className="text-xs py-2"
+                              disabled={createDiagnosticTest.isPending || isGeneratingQuestion}
                             >
-                              Single Short Answer
+                              {createDiagnosticTest.isPending ? <i className="fas fa-spinner fa-spin"></i> : "1 Short Answer"}
                             </Button>
                             <Button
                               onClick={() => handleDiagnosticTest('single-essay')}
                               variant="outline"
-                              className="w-full"
-                              size="sm"
-                              disabled={createDiagnosticTest.isPending}
+                              className="text-xs py-2"
+                              disabled={createDiagnosticTest.isPending || isGeneratingQuestion}
                             >
-                              Single Essay
+                              {createDiagnosticTest.isPending ? <i className="fas fa-spinner fa-spin"></i> : "1 Essay"}
                             </Button>
                             <Button
                               onClick={() => handleDiagnosticTest('three-mixed')}
                               variant="outline"
-                              className="w-full"
-                              size="sm"
-                              disabled={createDiagnosticTest.isPending}
+                              className="text-xs py-2"
+                              disabled={createDiagnosticTest.isPending || isGeneratingQuestion}
                             >
-                              3-Question Mixed Test
+                              {createDiagnosticTest.isPending ? <i className="fas fa-spinner fa-spin"></i> : "3 Mixed"}
                             </Button>
                           </div>
                         </div>
