@@ -110,12 +110,7 @@ export default function Home() {
     }
   };
 
-  // Auto-generate first question when component loads
-  useEffect(() => {
-    if (!currentQuestion && !currentSession && !isGeneratingQuestion) {
-      startDiagnosticTest();
-    }
-  }, []);
+  // Remove auto-generation - user should choose their test type
 
   const generateNextQuestion = async (session: TestSession, questionNumber: number) => {
     try {
@@ -227,7 +222,7 @@ export default function Home() {
     }
   };
 
-  const handleDiagnosticTest = async (type: 'single-mc' | 'single-sa' | 'single-essay' | 'three-mixed') => {
+  const startQuickTest = async (type: 'single-mc' | 'single-sa' | 'single-essay' | 'three-mixed') => {
     try {
       setIsGeneratingQuestion(true);
       setTestMode('practice'); // Quick tests show explanations immediately
@@ -250,7 +245,7 @@ export default function Home() {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to generate diagnostic test.",
+        description: "Failed to generate quick test.",
         variant: "destructive",
       });
     } finally {
@@ -524,36 +519,36 @@ export default function Home() {
                           <p className="text-sm font-medium text-gray-700 mb-3 text-center">Quick Tests (Essential for Development):</p>
                           <div className="grid grid-cols-2 gap-2">
                             <Button
-                              onClick={() => handleDiagnosticTest('single-mc')}
+                              onClick={() => startQuickTest('single-mc')}
                               variant="outline"
                               className="text-xs py-2"
                               disabled={createDiagnosticTest.isPending || isGeneratingQuestion}
                             >
-                              {createDiagnosticTest.isPending ? <i className="fas fa-spinner fa-spin"></i> : "1 Multiple Choice"}
+                              {isGeneratingQuestion ? <i className="fas fa-spinner fa-spin"></i> : "1 Multiple Choice"}
                             </Button>
                             <Button
-                              onClick={() => handleDiagnosticTest('single-sa')}
+                              onClick={() => startQuickTest('single-sa')}
                               variant="outline"
                               className="text-xs py-2"
                               disabled={createDiagnosticTest.isPending || isGeneratingQuestion}
                             >
-                              {createDiagnosticTest.isPending ? <i className="fas fa-spinner fa-spin"></i> : "1 Short Answer"}
+                              {isGeneratingQuestion ? <i className="fas fa-spinner fa-spin"></i> : "1 Short Answer"}
                             </Button>
                             <Button
-                              onClick={() => handleDiagnosticTest('single-essay')}
+                              onClick={() => startQuickTest('single-essay')}
                               variant="outline"
                               className="text-xs py-2"
                               disabled={createDiagnosticTest.isPending || isGeneratingQuestion}
                             >
-                              {createDiagnosticTest.isPending ? <i className="fas fa-spinner fa-spin"></i> : "1 Essay"}
+                              {isGeneratingQuestion ? <i className="fas fa-spinner fa-spin"></i> : "1 Essay"}
                             </Button>
                             <Button
-                              onClick={() => handleDiagnosticTest('three-mixed')}
+                              onClick={() => startQuickTest('three-mixed')}
                               variant="outline"
                               className="text-xs py-2"
                               disabled={createDiagnosticTest.isPending || isGeneratingQuestion}
                             >
-                              {createDiagnosticTest.isPending ? <i className="fas fa-spinner fa-spin"></i> : "3 Mixed"}
+                              {isGeneratingQuestion ? <i className="fas fa-spinner fa-spin"></i> : "3 Mixed"}
                             </Button>
                           </div>
                         </div>
