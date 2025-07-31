@@ -166,6 +166,13 @@ export default function Home() {
         setCurrentResponse(null);
         setShowExplanation(false);
         
+        // Show brief confirmation that answer was submitted
+        toast({
+          title: "Answer Submitted",
+          description: `Question ${currentQuestionNumber} answered. ${response.isCorrect ? 'Correct!' : 'Incorrect.'}`,
+          variant: response.isCorrect ? "default" : "destructive",
+        });
+        
         const nextQuestionNumber = currentQuestionNumber + 1;
         if (nextQuestionNumber <= (currentSession.totalQuestions || 20)) {
           generateNextQuestion(currentSession, nextQuestionNumber);
@@ -405,6 +412,11 @@ export default function Home() {
                           <p className="text-sm text-gray-500">
                             Answer all questions, then get your full assessment at the end
                           </p>
+                          {allResponses.length > 0 && (
+                            <p className="text-xs text-blue-600">
+                              {allResponses.length} questions completed • Score: {Math.round((allResponses.filter(r => r.isCorrect).length / allResponses.length) * 100)}%
+                            </p>
+                          )}
                         </div>
                       ) : (
                         <p className="text-lg text-gray-600">
