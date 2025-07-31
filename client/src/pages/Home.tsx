@@ -366,10 +366,30 @@ export default function Home() {
                   </Card>
                 ) : currentQuestion && currentSession ? (
                   <div className="space-y-6">
-                    <div className="text-center">
-                      <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                        {testMode === 'diagnostic' ? 'Diagnostic Test' : 'Practice Question'}
-                      </h2>
+                    <div className="text-center space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Button 
+                          variant="outline" 
+                          onClick={() => {
+                            setCurrentSession(null);
+                            setCurrentQuestion(null);
+                            setShowExplanation(false);
+                            setAllResponses([]);
+                          }}
+                          className="text-gray-600 hover:text-gray-800"
+                        >
+                          <i className="fas fa-arrow-left mr-2"></i>Back to Main Menu
+                        </Button>
+                        
+                        <div className="text-center">
+                          <h2 className="text-2xl font-bold text-gray-900">
+                            {testMode === 'diagnostic' ? 'Diagnostic Test' : 'Practice Question'}
+                          </h2>
+                        </div>
+                        
+                        <div className="w-32"></div> {/* Spacer for centering */}
+                      </div>
+                      
                       {testMode === 'diagnostic' ? (
                         <div className="space-y-2">
                           <p className="text-lg text-gray-600">
@@ -380,7 +400,7 @@ export default function Home() {
                           </p>
                         </div>
                       ) : (
-                        <p className="text-lg text-gray-600 mb-6">
+                        <p className="text-lg text-gray-600">
                           Practice with immediate explanations after each answer
                         </p>
                       )}
@@ -471,7 +491,7 @@ export default function Home() {
                           onClick={startPracticeQuestion}
                           disabled={createTestSession.isPending || isGeneratingQuestion}
                           variant="outline"
-                          className="w-full py-3"
+                          className="w-full py-3 mb-4"
                           size="lg"
                         >
                           {createTestSession.isPending || isGeneratingQuestion ? (
@@ -480,6 +500,48 @@ export default function Home() {
                             <>Start Practice Mode</>
                           )}
                         </Button>
+                        
+                        <div className="text-center">
+                          <p className="text-sm text-gray-500 mb-3">Quick Tests:</p>
+                          <div className="space-y-2">
+                            <Button
+                              onClick={() => handleDiagnosticTest('single-mc')}
+                              variant="outline"
+                              className="w-full"
+                              size="sm"
+                              disabled={createDiagnosticTest.isPending}
+                            >
+                              Single Multiple Choice
+                            </Button>
+                            <Button
+                              onClick={() => handleDiagnosticTest('single-sa')}
+                              variant="outline"
+                              className="w-full"
+                              size="sm"
+                              disabled={createDiagnosticTest.isPending}
+                            >
+                              Single Short Answer
+                            </Button>
+                            <Button
+                              onClick={() => handleDiagnosticTest('single-essay')}
+                              variant="outline"
+                              className="w-full"
+                              size="sm"
+                              disabled={createDiagnosticTest.isPending}
+                            >
+                              Single Essay
+                            </Button>
+                            <Button
+                              onClick={() => handleDiagnosticTest('three-mixed')}
+                              variant="outline"
+                              className="w-full"
+                              size="sm"
+                              disabled={createDiagnosticTest.isPending}
+                            >
+                              3-Question Mixed Test
+                            </Button>
+                          </div>
+                        </div>
                       </CardContent>
                     </Card>
                   </div>
