@@ -215,16 +215,44 @@ Respond in JSON format:
 
     let responseText = (response.content[0] as any).text;
     
-    // Clean up markdown code blocks and any other formatting
-    responseText = responseText
-      .replace(/```json\s*/g, '')
-      .replace(/```\s*$/g, '')
-      .replace(/^`+|`+$/g, '')
-      .trim();
-    
     console.log('Anthropic raw response:', responseText);
     
-    const result = JSON.parse(responseText);
+    // Comprehensive JSON cleanup
+    responseText = responseText
+      .replace(/```json\s*/gi, '')
+      .replace(/```\s*$/gm, '')
+      .replace(/^`+|`+$/g, '')
+      .replace(/^\s*```[\s\S]*?```\s*$/gm, (match: string) => {
+        // Extract JSON from code blocks
+        const jsonMatch = match.match(/\{[\s\S]*\}/);
+        return jsonMatch ? jsonMatch[0] : match;
+      })
+      .trim();
+    
+    // Find the first valid JSON object if multiple exist
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      responseText = jsonMatch[0];
+    }
+    
+    console.log('Cleaned response:', responseText);
+    
+    try {
+      const result = JSON.parse(responseText);
+      return {
+        type: type as any,
+        subject: result.subject || subject,
+        questionText: result.questionText,
+        options: result.options,
+        correctAnswer: result.correctAnswer,
+        explanation: result.explanation,
+        difficulty: result.difficulty as any || difficulty,
+      };
+    } catch (error: any) {
+      console.error('JSON parse error:', error);
+      console.error('Failed to parse:', responseText);
+      throw new Error(`Failed to parse Anthropic response: ${error.message}`);
+    }
     return {
       type: type as any,
       subject: result.subject || subject,
@@ -321,10 +349,26 @@ Respond in JSON format:
 
     let responseText = (response.content[0] as any).text;
     
-    // Clean up markdown code blocks if present
-    responseText = responseText.replace(/```json\s*/g, '').replace(/```\s*$/g, '').trim();
+    // Comprehensive JSON cleanup
+    responseText = responseText
+      .replace(/```json\s*/gi, '')
+      .replace(/```\s*$/gm, '')
+      .replace(/^`+|`+$/g, '')
+      .trim();
     
-    return JSON.parse(responseText);
+    // Find the first valid JSON object if multiple exist
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      responseText = jsonMatch[0];
+    }
+    
+    try {
+      return JSON.parse(responseText);
+    } catch (error: any) {
+      console.error('Grading JSON parse error:', error);
+      console.error('Failed to parse:', responseText);
+      throw new Error(`Failed to parse Anthropic grading response: ${error.message}`);
+    }
   }
 
   private async gradeResponseDeepSeek(prompt: string): Promise<AIGrading> {
