@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import Anthropic from '@anthropic-ai/sdk';
+import { buildCalibrationPrompt } from './gradingCalibration';
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const DEFAULT_OPENAI_MODEL = "gpt-4o";
@@ -73,7 +74,12 @@ export class AIService {
     correctAnswer?: string,
     type: 'multiple-choice' | 'short-answer' | 'essay' = 'essay'
   ): Promise<AIGrading> {
-    const prompt = this.buildGradingPrompt(question, userAnswer, correctAnswer, type);
+    // Use calibration grading for essays and short answers to ensure fairness
+    const useCalibration = type === 'essay' || type === 'short-answer';
+    
+    const prompt = useCalibration 
+      ? buildCalibrationPrompt(userAnswer, question)
+      : this.buildGradingPrompt(question, userAnswer, correctAnswer, type);
 
     switch (provider) {
       case 'openai':
@@ -156,15 +162,16 @@ Respond in JSON format:
 }`;
     }
 
-    return `You are a bar exam grader evaluating this student's response to a legal essay question. Do not withhold points arbitrarily. If the student's response shows (1) correct legal standards, (2) accurate application of facts to law, (3) a reasoned and well-structured conclusion, and (4) engagement with likely defenses, then award a full score — 100/100 — unless there is a genuine legal error or major omission.
+    return `Evaluate the following answer to a bar exam-style torts essay prompt. Provide a score out of 100, but only deduct points for genuine legal misunderstanding, misapplication of facts, or incoherent structure. Do NOT deduct points just because the answer omits minor or weak counterarguments unless such omission materially affects the analysis. If the answer correctly identifies all prima facie elements and applies them with clarity, it should receive a score of 90 or above. Be rigorous but not formalistic. Treat this as a real bar exam grading situation. Then explain your scoring.
 
-Do not penalize for lack of citations unless citations were explicitly requested.
+CRITICAL: You must justify ALL point deductions. If you give 85/100, you must explain exactly where 15 points were lost with specific legal flaws, not generalities.
 
-Do not downgrade based on vague suggestions like "add more detail" or "include more counterarguments" if the existing argument is already complete and persuasive.
+Never rely on generic scoring heuristics like "mention X defense = +5 points." Evaluate based on:
+- Accuracy of doctrine
+- Logical application to facts  
+- Structure of legal reasoning
 
-The grading must reflect actual legal quality, not academic hedging.
-
-Respond with the full score and brief justification only if needed. Do not fabricate minor critiques to justify point deductions.
+Do not downgrade for failing to raise weak or inapplicable defenses unless omission shows misunderstanding.
 
 Question: ${question}
 
@@ -173,7 +180,7 @@ User's Answer: ${userAnswer}
 Respond in JSON format:
 {
   "score": number (0-100),
-  "feedback": "detailed explanation",
+  "feedback": "detailed explanation with specific justification for any point deductions",
   "strengths": ["strength1", "strength2"],
   "improvements": ["improvement1", "improvement2"]
 }`;

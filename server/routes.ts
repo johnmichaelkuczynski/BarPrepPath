@@ -99,6 +99,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
 
       // Let the LLM determine correctness completely - no hardcoded logic
+      // For bar exam standards, 90+ is excellent, 70+ is passing
       const isCorrect = grading.score >= 70;
 
       const response = await storage.createQuestionResponse({
