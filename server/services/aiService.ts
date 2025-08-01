@@ -215,8 +215,14 @@ Respond in JSON format:
 
     let responseText = (response.content[0] as any).text;
     
-    // Clean up markdown code blocks if present
-    responseText = responseText.replace(/```json\s*/g, '').replace(/```\s*$/g, '').trim();
+    // Clean up markdown code blocks and any other formatting
+    responseText = responseText
+      .replace(/```json\s*/g, '')
+      .replace(/```\s*$/g, '')
+      .replace(/^`+|`+$/g, '')
+      .trim();
+    
+    console.log('Anthropic raw response:', responseText);
     
     const result = JSON.parse(responseText);
     return {
