@@ -113,7 +113,12 @@ export class AIService {
   }
 
   private buildQuestionPrompt(type: string, subject: string, difficulty: string): string {
-    return `Generate a ${difficulty} difficulty ${type} question for the Texas Bar Exam covering ${subject}.
+    const timestamp = new Date().toISOString();
+    return `Generate a completely fresh, unique ${difficulty} difficulty ${type} question for the Texas Bar Exam covering ${subject}. 
+
+    IMPORTANT: Generate a brand new question that has never been created before. Use unique fact patterns and legal scenarios.
+    
+    Timestamp: ${timestamp}
 
     Requirements:
     - The question must be realistic and similar to actual bar exam questions
@@ -134,22 +139,36 @@ export class AIService {
   }
 
   private buildGradingPrompt(question: string, userAnswer: string, correctAnswer: string | undefined, type: string): string {
-    return `Grade this ${type} response to a Texas Bar Exam question.
+    if (type === 'multiple-choice') {
+      return `Here is the user's selected answer: ${userAnswer}
 
-    Question: ${question}
-    
-    ${correctAnswer ? `Correct Answer: ${correctAnswer}` : ''}
-    
-    Student Answer: ${userAnswer}
+Question: ${question}
 
-    Provide a detailed grading assessment in JSON format:
-    {
-      "score": 85, // 0-100 score
-      "feedback": "Overall feedback on the response...",
-      "strengths": ["Strength 1", "Strength 2"],
-      "improvements": ["Area for improvement 1", "Area for improvement 2"],
-      "correctAnswer": "Brief explanation of correct answer if needed"
-    }`;
+Was it correct? If not, what is the correct answer and why? Provide a realistic score out of 100 based on legal reasoning and accuracy.
+
+Respond in JSON format:
+{
+  "score": number (0-100),
+  "feedback": "detailed explanation",
+  "strengths": ["strength1", "strength2"],
+  "improvements": ["improvement1", "improvement2"],
+  "correctAnswer": "the correct answer if user was wrong"
+}`;
+    }
+
+    return `Please evaluate the following user answer as if grading a bar exam ${type}. Identify strengths, weaknesses, and assign a realistic score out of 100 based on legal reasoning, factual application, structure, and writing clarity. Provide explanation.
+
+Question: ${question}
+
+User's Answer: ${userAnswer}
+
+Respond in JSON format:
+{
+  "score": number (0-100),
+  "feedback": "detailed explanation",
+  "strengths": ["strength1", "strength2"],
+  "improvements": ["improvement1", "improvement2"]
+}`;
   }
 
   private async generateQuestionOpenAI(prompt: string, type: string, subject: string, difficulty: string): Promise<AIQuestion> {

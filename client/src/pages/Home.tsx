@@ -39,7 +39,7 @@ export default function Home() {
 
   const providerOptions = [
     { value: 'openai', label: 'OpenAI GPT-4' },
-    { value: 'anthropic', label: 'Claude 3 Opus' },
+    { value: 'anthropic', label: 'Claude Sonnet 4' },
     { value: 'deepseek', label: 'DeepSeek-V2' },
     { value: 'perplexity', label: 'Perplexity' },
   ];

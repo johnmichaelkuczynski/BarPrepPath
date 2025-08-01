@@ -98,10 +98,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         validatedData.questionType
       );
 
-      // Determine if answer is correct for multiple choice
-      const isCorrect = validatedData.questionType === 'multiple-choice' 
-        ? validatedData.userAnswer === validatedData.correctAnswer
-        : grading.score >= 70; // 70% threshold for written responses
+      // Let the LLM determine correctness completely - no hardcoded logic
+      const isCorrect = grading.score >= 70;
 
       const response = await storage.createQuestionResponse({
         ...validatedData,
