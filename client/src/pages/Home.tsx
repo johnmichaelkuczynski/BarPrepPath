@@ -11,7 +11,7 @@ import { ChatSidebar } from "@/components/ChatSidebar";
 import { useGenerateQuestion, useCreateTestSession, useTestSession, useSubmitQuestionResponse, useCreateDiagnosticTest } from "@/hooks/useAI";
 import { useUserAnalytics } from "@/hooks/useAnalytics";
 import { useToast } from "@/hooks/use-toast";
-import type { LLMProvider, Question, TestSession, QuestionResponse } from "@/types";
+import type { LLMProvider, Question, TestSession, QuestionResponse, QuestionType } from "@/types";
 
 export default function Home() {
   const [selectedProvider, setSelectedProvider] = useState<LLMProvider>('openai');
@@ -24,6 +24,17 @@ export default function Home() {
   const [isGeneratingQuestion, setIsGeneratingQuestion] = useState(false);
   const [testMode, setTestMode] = useState<'practice' | 'diagnostic'>('diagnostic');
   const [allResponses, setAllResponses] = useState<QuestionResponse[]>([]);
+  const [storedAnswers, setStoredAnswers] = useState<Array<{
+    sessionId: string;
+    questionNumber: number;
+    questionType: QuestionType;
+    subject: string;
+    questionText: string;
+    options: string[] | undefined;
+    userAnswer: string;
+    correctAnswer: string | undefined;
+    timeSpent: number;
+  }>>([]);
   
   // Mock user ID - in a real app this would come from authentication
   const userId = "user-123";
@@ -61,6 +72,7 @@ export default function Home() {
       setIsGeneratingQuestion(true);
       setTestMode('diagnostic');
       setAllResponses([]);
+      setStoredAnswers([]);
       setShowExplanation(false);
       
       const session = await createTestSession.mutateAsync({
@@ -173,6 +185,35 @@ export default function Home() {
   const handleSubmitAnswer = async (answer: string, timeSpent: number) => {
     if (!currentSession || !currentQuestion) return;
 
+    if (testMode === 'diagnostic') {
+      // In diagnostic mode, store answer locally and move immediately to next question
+      const storedAnswer = {
+        sessionId: currentSession.id,
+        questionNumber: currentQuestionNumber,
+        questionType: currentQuestion.type,
+        subject: currentQuestion.subject,
+        questionText: currentQuestion.questionText,
+        options: currentQuestion.options,
+        userAnswer: answer,
+        correctAnswer: currentQuestion.correctAnswer,
+        timeSpent,
+      };
+      
+      setStoredAnswers(prev => [...prev, storedAnswer]);
+      setCurrentResponse(null);
+      setShowExplanation(false);
+      
+      const nextQuestionNumber = currentQuestionNumber + 1;
+      if (nextQuestionNumber <= (currentSession.totalQuestions || 20)) {
+        generateNextQuestion(currentSession, nextQuestionNumber);
+      } else {
+        // Test completed - now submit all answers at once
+        await submitAllDiagnosticAnswers();
+      }
+      return;
+    }
+
+    // Practice mode - submit immediately and show explanation
     try {
       const response = await submitQuestionResponse.mutateAsync({
         sessionId: currentSession.id,
@@ -187,35 +228,45 @@ export default function Home() {
         timeSpent,
       });
 
-      if (testMode === 'diagnostic') {
-        // In diagnostic mode, store response and move to next question immediately
-        setAllResponses(prev => [...prev, response]);
-        setCurrentResponse(null);
-        setShowExplanation(false);
-        
-        const nextQuestionNumber = currentQuestionNumber + 1;
-        if (nextQuestionNumber <= (currentSession.totalQuestions || 20)) {
-          generateNextQuestion(currentSession, nextQuestionNumber);
-        } else {
-          // Test completed - show all results
-          setShowExplanation(true);
-          setCurrentResponse(response);
-        }
-      } else {
-        // In practice mode, show explanation immediately
-        setCurrentResponse(response);
-        setShowExplanation(true);
-      }
+      setCurrentResponse(response);
+      setShowExplanation(true);
     } catch (error) {
       console.error('Failed to submit answer:', error);
-      // Don't show toast during diagnostic tests to avoid interrupting flow
-      if (testMode !== 'diagnostic') {
-        toast({
-          title: "Error",
-          description: "Failed to submit answer. Please try again.",
-          variant: "destructive",
-        });
+      toast({
+        title: "Error",
+        description: "Failed to submit answer. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const submitAllDiagnosticAnswers = async () => {
+    try {
+      // Submit all stored answers at once
+      const responses = await Promise.all(
+        storedAnswers.map(async (storedAnswer) => {
+          return await submitQuestionResponse.mutateAsync({
+            sessionId: storedAnswer.sessionId,
+            questionNumber: storedAnswer.questionNumber,
+            questionType: storedAnswer.questionType,
+            subject: storedAnswer.subject,
+            questionText: storedAnswer.questionText,
+            options: storedAnswer.options,
+            userAnswer: storedAnswer.userAnswer,
+            correctAnswer: storedAnswer.correctAnswer,
+            llmProvider: selectedProvider,
+            timeSpent: storedAnswer.timeSpent,
+          });
+        })
+      );
+      
+      setAllResponses(responses);
+      setShowExplanation(true);
+      if (responses.length > 0) {
+        setCurrentResponse(responses[responses.length - 1]);
       }
+    } catch (error) {
+      console.error('Failed to submit diagnostic answers:', error);
     }
   };
 
@@ -248,6 +299,7 @@ export default function Home() {
       setIsGeneratingQuestion(true);
       setTestMode(type === 'three-mixed' ? 'diagnostic' : 'practice'); // Three-mixed is diagnostic, others are practice
       setAllResponses([]);
+      setStoredAnswers([]);
       setShowExplanation(false);
 
       const result = await createDiagnosticTest.mutateAsync({
@@ -449,6 +501,7 @@ export default function Home() {
                       isSubmitting={submitQuestionResponse.isPending}
                       showExplanation={showExplanation}
                       response={currentResponse || undefined}
+                      isDiagnosticMode={testMode === 'diagnostic'}
                     />
 
                     {showExplanation && testMode === 'practice' && (

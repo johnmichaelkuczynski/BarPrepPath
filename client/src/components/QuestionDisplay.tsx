@@ -18,6 +18,7 @@ interface QuestionDisplayProps {
   isSubmitting?: boolean;
   showExplanation?: boolean;
   response?: QuestionResponse;
+  isDiagnosticMode?: boolean;
 }
 
 export function QuestionDisplay({
@@ -30,6 +31,7 @@ export function QuestionDisplay({
   isSubmitting = false,
   showExplanation = false,
   response,
+  isDiagnosticMode = false,
 }: QuestionDisplayProps) {
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [startTime] = useState(Date.now());
@@ -39,6 +41,18 @@ export function QuestionDisplay({
     
     const timeSpent = Math.floor((Date.now() - startTime) / 1000);
     onSubmitAnswer(selectedAnswer, timeSpent);
+  };
+
+  // Auto-submit in diagnostic mode when answer is selected
+  const handleAnswerChange = (answer: string) => {
+    setSelectedAnswer(answer);
+    if (isDiagnosticMode && answer.trim()) {
+      // Auto-submit in diagnostic mode after short delay
+      setTimeout(() => {
+        const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+        onSubmitAnswer(answer, timeSpent);
+      }, 500);
+    }
   };
 
   const getLLMDisplayName = (provider: LLMProvider) => {
@@ -87,7 +101,7 @@ export function QuestionDisplay({
         {!showExplanation && (
           <div className="mb-8">
             {question.type === 'multiple-choice' && question.options ? (
-              <RadioGroup value={selectedAnswer} onValueChange={setSelectedAnswer}>
+              <RadioGroup value={selectedAnswer} onValueChange={handleAnswerChange}>
                 <div className="space-y-4">
                   {question.options.map((option, index) => {
                     const letter = String.fromCharCode(65 + index); // A, B, C, D
@@ -202,7 +216,7 @@ export function QuestionDisplay({
               </Button>
             )}
             
-            {!showExplanation ? (
+            {!showExplanation && !isDiagnosticMode ? (
               <Button
                 onClick={handleSubmit}
                 disabled={!selectedAnswer.trim() || isSubmitting}
@@ -217,14 +231,14 @@ export function QuestionDisplay({
                   "Submit Answer"
                 )}
               </Button>
-            ) : (
+            ) : showExplanation ? (
               <Button
                 onClick={() => window.location.reload()}
                 className="bg-primary hover:bg-blue-700"
               >
                 Continue
               </Button>
-            )}
+            ) : null}
           </div>
         </div>
       </CardContent>
