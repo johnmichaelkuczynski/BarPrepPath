@@ -79,7 +79,7 @@ export default function Home() {
         userId,
         testType: 'diagnostic',
         llmProvider: selectedProvider,
-        totalQuestions: 20,
+        totalQuestions: 3,
       });
 
       setCurrentSession(session);
@@ -204,7 +204,7 @@ export default function Home() {
       setShowExplanation(false);
       
       const nextQuestionNumber = currentQuestionNumber + 1;
-      if (nextQuestionNumber <= (currentSession.totalQuestions || 20)) {
+      if (nextQuestionNumber <= (currentSession.totalQuestions || 3)) {
         generateNextQuestion(currentSession, nextQuestionNumber);
       } else {
         // Test completed - now submit all answers at once
