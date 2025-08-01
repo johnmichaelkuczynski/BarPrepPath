@@ -43,16 +43,9 @@ export function QuestionDisplay({
     onSubmitAnswer(selectedAnswer, timeSpent);
   };
 
-  // Auto-submit in diagnostic mode when answer is selected
+  // Set answer in diagnostic mode but don't auto-submit
   const handleAnswerChange = (answer: string) => {
     setSelectedAnswer(answer);
-    if (isDiagnosticMode && answer.trim()) {
-      // Auto-submit in diagnostic mode after short delay
-      setTimeout(() => {
-        const timeSpent = Math.floor((Date.now() - startTime) / 1000);
-        onSubmitAnswer(answer, timeSpent);
-      }, 500);
-    }
   };
 
   const getLLMDisplayName = (provider: LLMProvider) => {
@@ -229,6 +222,21 @@ export function QuestionDisplay({
                   </>
                 ) : (
                   "Submit Answer"
+                )}
+              </Button>
+            ) : !showExplanation && isDiagnosticMode && selectedAnswer ? (
+              <Button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="bg-primary hover:bg-blue-700"
+              >
+                {isSubmitting ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin mr-2"></i>
+                    Next Question...
+                  </>
+                ) : (
+                  "Next Question"
                 )}
               </Button>
             ) : showExplanation ? (
