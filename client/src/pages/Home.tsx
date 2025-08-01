@@ -110,6 +110,34 @@ export default function Home() {
     }
   };
 
+  const generateAnotherPracticeQuestion = async () => {
+    try {
+      setIsGeneratingQuestion(true);
+      setShowExplanation(false);
+      setCurrentResponse(null);
+
+      // Generate fresh question with random subject
+      const randomSubject = subjectOptions[Math.floor(Math.random() * subjectOptions.length)];
+      const question = await generateQuestion.mutateAsync({
+        provider: selectedProvider,
+        type: 'multiple-choice',
+        subject: randomSubject,
+        difficulty: 'medium',
+      });
+
+      setCurrentQuestion({ ...question, questionNumber: 1 });
+      setCurrentQuestionNumber(1);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate another question.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingQuestion(false);
+    }
+  };
+
   // Remove auto-generation - user should choose their test type
 
   const generateNextQuestion = async (session: TestSession, questionNumber: number) => {
@@ -432,8 +460,17 @@ export default function Home() {
 
                     {showExplanation && testMode === 'practice' && (
                       <div className="text-center space-y-4">
-                        <Button onClick={startPracticeQuestion} size="lg" className="bg-blue-600 hover:bg-blue-700 px-8">
-                          <i className="fas fa-refresh mr-2"></i>Generate Another Practice Question
+                        <Button 
+                          onClick={generateAnotherPracticeQuestion} 
+                          size="lg" 
+                          className="bg-blue-600 hover:bg-blue-700 px-8"
+                          disabled={isGeneratingQuestion}
+                        >
+                          {isGeneratingQuestion ? (
+                            <><i className="fas fa-spinner fa-spin mr-2"></i>Generating...</>
+                          ) : (
+                            <><i className="fas fa-refresh mr-2"></i>Generate Another Practice Question</>
+                          )}
                         </Button>
                       </div>
                     )}
