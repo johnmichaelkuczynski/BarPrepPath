@@ -189,11 +189,11 @@ export default function Home() {
         setCurrentResponse(null);
         setShowExplanation(false);
         
-        // Show brief confirmation that answer was submitted
+        // Show brief confirmation that answer was submitted (no grade revealed)
         toast({
           title: "Answer Submitted",
-          description: `Question ${currentQuestionNumber} answered. ${response.isCorrect ? 'Correct!' : 'Incorrect.'}`,
-          variant: response.isCorrect ? "default" : "destructive",
+          description: `Question ${currentQuestionNumber} recorded. Moving to next question...`,
+          variant: "default",
         });
         
         const nextQuestionNumber = currentQuestionNumber + 1;
@@ -253,7 +253,7 @@ export default function Home() {
   const startQuickTest = async (type: 'single-mc' | 'single-sa' | 'single-essay' | 'three-mixed') => {
     try {
       setIsGeneratingQuestion(true);
-      setTestMode('practice'); // Quick tests show explanations immediately
+      setTestMode(type === 'three-mixed' ? 'diagnostic' : 'practice'); // Three-mixed is diagnostic, others are practice
       setAllResponses([]);
       setShowExplanation(false);
 
@@ -582,10 +582,10 @@ export default function Home() {
                             <Button
                               onClick={() => startQuickTest('three-mixed')}
                               variant="outline"
-                              className="text-xs py-2"
+                              className="text-xs py-2 bg-blue-50 border-blue-200 hover:bg-blue-100"
                               disabled={createDiagnosticTest.isPending || isGeneratingQuestion}
                             >
-                              {isGeneratingQuestion ? <i className="fas fa-spinner fa-spin"></i> : "3 Mixed"}
+                              {isGeneratingQuestion ? <i className="fas fa-spinner fa-spin"></i> : "3 Mixed (Test)"}
                             </Button>
                           </div>
                         </div>
