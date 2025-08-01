@@ -156,11 +156,15 @@ export default function Home() {
       setShowExplanation(false);
       setCurrentResponse(null);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to generate question. Please try again.",
-        variant: "destructive",
-      });
+      console.error('Failed to generate question:', error);
+      // Don't show toast during diagnostic tests to avoid interrupting flow
+      if (testMode !== 'diagnostic') {
+        toast({
+          title: "Error",
+          description: "Failed to generate question. Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsGeneratingQuestion(false);
     }
@@ -189,13 +193,6 @@ export default function Home() {
         setCurrentResponse(null);
         setShowExplanation(false);
         
-        // Show brief confirmation that answer was submitted (no grade revealed)
-        toast({
-          title: "Answer Submitted",
-          description: `Question ${currentQuestionNumber} recorded. Moving to next question...`,
-          variant: "default",
-        });
-        
         const nextQuestionNumber = currentQuestionNumber + 1;
         if (nextQuestionNumber <= (currentSession.totalQuestions || 20)) {
           generateNextQuestion(currentSession, nextQuestionNumber);
@@ -203,10 +200,6 @@ export default function Home() {
           // Test completed - show all results
           setShowExplanation(true);
           setCurrentResponse(response);
-          toast({
-            title: "Diagnostic Test Completed!",
-            description: `You answered ${currentSession.totalQuestions || 20} questions. Review your results below.`,
-          });
         }
       } else {
         // In practice mode, show explanation immediately
@@ -214,11 +207,15 @@ export default function Home() {
         setShowExplanation(true);
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to submit answer. Please try again.",
-        variant: "destructive",
-      });
+      console.error('Failed to submit answer:', error);
+      // Don't show toast during diagnostic tests to avoid interrupting flow
+      if (testMode !== 'diagnostic') {
+        toast({
+          title: "Error",
+          description: "Failed to submit answer. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -240,10 +237,6 @@ export default function Home() {
       generateNextQuestion(currentSession, nextQuestionNumber);
     } else {
       // Test completed
-      toast({
-        title: "Test Completed!",
-        description: "Check the analytics tab to see your results.",
-      });
       setCurrentSession(null);
       setCurrentQuestion(null);
       setShowExplanation(false);
