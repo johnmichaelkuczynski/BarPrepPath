@@ -156,7 +156,15 @@ Respond in JSON format:
 }`;
     }
 
-    return `Please evaluate the following user answer as if grading a bar exam ${type}. Identify strengths, weaknesses, and assign a realistic score out of 100 based on legal reasoning, factual application, structure, and writing clarity. Provide explanation.
+    return `You are a bar exam grader evaluating this student's response to a legal essay question. Do not withhold points arbitrarily. If the student's response shows (1) correct legal standards, (2) accurate application of facts to law, (3) a reasoned and well-structured conclusion, and (4) engagement with likely defenses, then award a full score — 100/100 — unless there is a genuine legal error or major omission.
+
+Do not penalize for lack of citations unless citations were explicitly requested.
+
+Do not downgrade based on vague suggestions like "add more detail" or "include more counterarguments" if the existing argument is already complete and persuasive.
+
+The grading must reflect actual legal quality, not academic hedging.
+
+Respond with the full score and brief justification only if needed. Do not fabricate minor critiques to justify point deductions.
 
 Question: ${question}
 
