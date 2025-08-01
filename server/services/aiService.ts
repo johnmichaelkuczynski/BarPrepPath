@@ -210,10 +210,15 @@ Respond in JSON format:
       model: DEFAULT_ANTHROPIC_MODEL,
       max_tokens: 2000,
       messages: [{ role: 'user', content: prompt }],
-      system: "You are an expert in Texas Bar Exam questions. Always respond with valid JSON."
+      system: "You are an expert in Texas Bar Exam questions. Always respond with valid JSON only, no markdown formatting or code blocks."
     });
 
-    const result = JSON.parse((response.content[0] as any).text);
+    let responseText = (response.content[0] as any).text;
+    
+    // Clean up markdown code blocks if present
+    responseText = responseText.replace(/```json\s*/g, '').replace(/```\s*$/g, '').trim();
+    
+    const result = JSON.parse(responseText);
     return {
       type: type as any,
       subject: result.subject || subject,
@@ -241,7 +246,12 @@ Respond in JSON format:
     });
 
     const data = await response.json();
-    const result = JSON.parse(data.choices[0].message.content || '{}');
+    let responseContent = data.choices[0].message.content || '{}';
+    
+    // Clean up markdown code blocks if present
+    responseContent = responseContent.replace(/```json\s*/g, '').replace(/```\s*$/g, '').trim();
+    
+    const result = JSON.parse(responseContent);
     
     return {
       type: type as any,
@@ -300,10 +310,15 @@ Respond in JSON format:
       model: DEFAULT_ANTHROPIC_MODEL,
       max_tokens: 1000,
       messages: [{ role: 'user', content: prompt }],
-      system: "You are an expert grader for bar exam responses. Always respond with valid JSON."
+      system: "You are an expert grader for bar exam responses. Always respond with valid JSON only, no markdown formatting or code blocks."
     });
 
-    return JSON.parse((response.content[0] as any).text);
+    let responseText = (response.content[0] as any).text;
+    
+    // Clean up markdown code blocks if present
+    responseText = responseText.replace(/```json\s*/g, '').replace(/```\s*$/g, '').trim();
+    
+    return JSON.parse(responseText);
   }
 
   private async gradeResponseDeepSeek(prompt: string): Promise<AIGrading> {
@@ -321,7 +336,12 @@ Respond in JSON format:
     });
 
     const data = await response.json();
-    return JSON.parse(data.choices[0].message.content || '{}');
+    let responseContent = data.choices[0].message.content || '{}';
+    
+    // Clean up markdown code blocks if present
+    responseContent = responseContent.replace(/```json\s*/g, '').replace(/```\s*$/g, '').trim();
+    
+    return JSON.parse(responseContent);
   }
 
   private async gradeResponsePerplexity(prompt: string): Promise<AIGrading> {
