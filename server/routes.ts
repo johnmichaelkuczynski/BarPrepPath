@@ -222,7 +222,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/diagnostic-tests', async (req, res) => {
     try {
       const diagnosticSchema = z.object({
-        type: z.enum(['single-mc', 'single-sa', 'single-essay', 'three-mixed']),
+        type: z.enum(['single-mc', 'single-sa', 'single-essay', 'full-diagnostic']),
         provider: z.enum(['openai', 'anthropic', 'deepseek', 'perplexity']),
         userId: z.string(),
       });
@@ -231,6 +231,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Generate appropriate questions based on diagnostic type
       const questions = [];
+      const subjects = ['constitutional-law', 'contracts', 'torts', 'criminal-law', 'evidence', 'real-property', 'civil-procedure', 'family-law', 'wills-trusts'];
       
       switch (type) {
         case 'single-mc':
@@ -242,19 +243,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         case 'single-essay':
           questions.push(await aiService.generateQuestion(provider, 'essay', 'torts'));
           break;
-        case 'three-mixed':
-          questions.push(await aiService.generateQuestion(provider, 'multiple-choice', 'constitutional-law'));
-          questions.push(await aiService.generateQuestion(provider, 'short-answer', 'contracts'));
-          questions.push(await aiService.generateQuestion(provider, 'essay', 'torts'));
+        case 'full-diagnostic':
+          // For full diagnostic, just generate the first question and set total to 20
+          const randomSubject = subjects[Math.floor(Math.random() * subjects.length)];
+          questions.push(await aiService.generateQuestion(provider, 'multiple-choice', randomSubject));
           break;
       }
 
       // Create test session
+      const totalQuestions = type === 'full-diagnostic' ? 20 : questions.length;
       const session = await storage.createTestSession({
         userId,
         testType: `diagnostic-${type}`,
         llmProvider: provider,
-        totalQuestions: questions.length,
+        totalQuestions,
         metadata: { diagnosticType: type },
       });
 

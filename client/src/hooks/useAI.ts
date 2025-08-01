@@ -114,7 +114,7 @@ export function useChatHistory(userId: string, limit?: number) {
 export function useCreateDiagnosticTest() {
   return useMutation({
     mutationFn: async (params: {
-      type: 'single-mc' | 'single-sa' | 'single-essay' | 'three-mixed';
+      type: 'single-mc' | 'single-sa' | 'single-essay' | 'full-diagnostic';
       provider: LLMProvider;
       userId: string;
     }) => {

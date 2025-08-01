@@ -75,15 +75,19 @@ export default function Home() {
       setStoredAnswers([]);
       setShowExplanation(false);
       
-      const session = await createTestSession.mutateAsync({
+      const result = await createDiagnosticTest.mutateAsync({
+        type: 'full-diagnostic' as any,
+        provider: selectedProvider,
         userId,
-        testType: 'diagnostic',
-        llmProvider: selectedProvider,
-        totalQuestions: 3,
       });
 
-      setCurrentSession(session);
-      await generateNextQuestion(session, 1);
+      setCurrentSession(result.session);
+      if (result.questions.length > 0) {
+        setCurrentQuestion(result.questions[0]);
+        setCurrentQuestionNumber(1);
+        setShowExplanation(false);
+        setCurrentResponse(null);
+      }
     } catch (error) {
       toast({
         title: "Error", 
@@ -156,9 +160,20 @@ export default function Home() {
     try {
       setIsGeneratingQuestion(true);
       const randomSubject = subjectOptions[Math.floor(Math.random() * subjectOptions.length)];
+      
+      // For diagnostic tests, vary question types based on question number
+      let questionType: 'multiple-choice' | 'short-answer' | 'essay' = 'multiple-choice';
+      if (testMode === 'diagnostic' && session.totalQuestions === 20) {
+        if (questionNumber > 15 && questionNumber <= 18) {
+          questionType = 'short-answer'; // Questions 16-18 are short answer
+        } else if (questionNumber > 18) {
+          questionType = 'essay'; // Questions 19-20 are essay
+        }
+      }
+      
       const question = await generateQuestion.mutateAsync({
         provider: selectedProvider,
-        type: 'multiple-choice',
+        type: questionType,
         subject: randomSubject,
         difficulty: 'medium',
       });
@@ -186,7 +201,7 @@ export default function Home() {
     if (!currentSession || !currentQuestion) return;
 
     if (testMode === 'diagnostic') {
-      // In diagnostic mode, store answer locally but DON'T auto-advance
+      // In diagnostic mode, store answer locally and move to next question
       const storedAnswer = {
         sessionId: currentSession.id,
         questionNumber: currentQuestionNumber,
@@ -205,12 +220,12 @@ export default function Home() {
       
       // Check if this is the last question
       const nextQuestionNumber = currentQuestionNumber + 1;
-      if (nextQuestionNumber > (currentSession.totalQuestions || 3)) {
+      if (nextQuestionNumber > (currentSession.totalQuestions || 20)) {
         // Test completed - submit all answers and show results
         await submitAllDiagnosticAnswers();
       } else {
-        // Move to next question
-        generateNextQuestion(currentSession, nextQuestionNumber);
+        // Generate next question on demand for diagnostic tests
+        await generateNextQuestion(currentSession, nextQuestionNumber);
       }
       return;
     }
@@ -286,7 +301,7 @@ export default function Home() {
     }
 
     const nextQuestionNumber = currentQuestionNumber + 1;
-    if (nextQuestionNumber <= (currentSession.totalQuestions || (testMode === 'diagnostic' ? 3 : 20))) {
+    if (nextQuestionNumber <= (currentSession.totalQuestions || 20)) {
       generateNextQuestion(currentSession, nextQuestionNumber);
     } else {
       // Test completed
@@ -296,10 +311,10 @@ export default function Home() {
     }
   };
 
-  const startQuickTest = async (type: 'single-mc' | 'single-sa' | 'single-essay' | 'three-mixed') => {
+  const startQuickTest = async (type: 'single-mc' | 'single-sa' | 'single-essay') => {
     try {
       setIsGeneratingQuestion(true);
-      setTestMode(type === 'three-mixed' ? 'diagnostic' : 'practice'); // Three-mixed is diagnostic, others are practice
+      setTestMode('practice'); // Quick tests are practice mode
       setAllResponses([]);
       setStoredAnswers([]);
       setShowExplanation(false);
@@ -477,7 +492,7 @@ export default function Home() {
                       {testMode === 'diagnostic' ? (
                         <div className="space-y-2">
                           <p className="text-lg text-gray-600">
-                            Question {currentQuestionNumber} of {currentSession.totalQuestions || (testMode === 'diagnostic' ? 3 : 20)}
+                            Question {currentQuestionNumber} of {currentSession.totalQuestions || 20}
                           </p>
                           <p className="text-sm text-gray-500">
                             Answer all questions, then get your full assessment at the end
@@ -498,7 +513,7 @@ export default function Home() {
                     <QuestionDisplay
                       question={currentQuestion}
                       questionNumber={currentQuestionNumber}
-                      totalQuestions={currentSession.totalQuestions || (testMode === 'diagnostic' ? 3 : 20)}
+                      totalQuestions={currentSession.totalQuestions || 20}
                       onSubmitAnswer={handleSubmitAnswer}
                       isSubmitting={submitQuestionResponse.isPending}
                       showExplanation={showExplanation}
@@ -626,14 +641,6 @@ export default function Home() {
                               disabled={createDiagnosticTest.isPending || isGeneratingQuestion}
                             >
                               {isGeneratingQuestion ? <i className="fas fa-spinner fa-spin"></i> : "1 Essay"}
-                            </Button>
-                            <Button
-                              onClick={() => startQuickTest('three-mixed')}
-                              variant="outline"
-                              className="text-xs py-2 bg-blue-50 border-blue-200 hover:bg-blue-100"
-                              disabled={createDiagnosticTest.isPending || isGeneratingQuestion}
-                            >
-                              {isGeneratingQuestion ? <i className="fas fa-spinner fa-spin"></i> : "3 Mixed (Test)"}
                             </Button>
                           </div>
                         </div>
