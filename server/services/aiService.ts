@@ -49,9 +49,10 @@ export class AIService {
     provider: LLMProvider,
     type: 'multiple-choice' | 'short-answer' | 'essay',
     subject: string,
-    difficulty: 'easy' | 'medium' | 'hard' = 'medium'
+    difficulty: 'easy' | 'medium' | 'hard' = 'medium',
+    seed?: string
   ): Promise<AIQuestion> {
-    const prompt = this.buildQuestionPrompt(type, subject, difficulty);
+    const prompt = this.buildQuestionPrompt(type, subject, difficulty, seed);
 
     switch (provider) {
       case 'openai':
@@ -118,13 +119,21 @@ export class AIService {
     }
   }
 
-  private buildQuestionPrompt(type: string, subject: string, difficulty: string): string {
+  private buildQuestionPrompt(
+    type: 'multiple-choice' | 'short-answer' | 'essay',
+    subject: string,
+    difficulty: 'easy' | 'medium' | 'hard',
+    seed?: string
+  ): string {
     const timestamp = new Date().toISOString();
+    const uniqueId = seed || Math.random().toString(36).substring(7);
+    
     return `Generate a completely fresh, unique ${difficulty} difficulty ${type} question for the Texas Bar Exam covering ${subject}. 
 
     IMPORTANT: Generate a brand new question that has never been created before. Use unique fact patterns and legal scenarios.
     
     Timestamp: ${timestamp}
+    Unique ID: ${uniqueId}
 
     Requirements:
     - The question must be realistic and similar to actual bar exam questions

@@ -56,10 +56,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         type: z.enum(['multiple-choice', 'short-answer', 'essay']),
         subject: z.string(),
         difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
+        seed: z.string().optional(),
       });
 
-      const { provider, type, subject, difficulty } = questionSchema.parse(req.body);
-      const question = await aiService.generateQuestion(provider, type, subject, difficulty);
+      const { provider, type, subject, difficulty, seed } = questionSchema.parse(req.body);
+      const question = await aiService.generateQuestion(provider, type, subject, difficulty, seed);
       
       res.json({
         ...question,

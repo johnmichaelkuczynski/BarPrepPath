@@ -132,13 +132,18 @@ export default function Home() {
       setShowExplanation(false);
       setCurrentResponse(null);
 
-      // Generate fresh question with random subject
+      // Generate fresh question with random subject and difficulty
       const randomSubject = subjectOptions[Math.floor(Math.random() * subjectOptions.length)];
+      const difficulties: ('easy' | 'medium' | 'hard')[] = ['easy', 'medium', 'hard'];
+      const randomDifficulty = difficulties[Math.floor(Math.random() * difficulties.length)];
+      const randomSeed = Math.random().toString(36).substring(7); // Add randomization
+      
       const question = await generateQuestion.mutateAsync({
         provider: selectedProvider,
         type: 'multiple-choice',
         subject: randomSubject,
-        difficulty: 'medium',
+        difficulty: randomDifficulty,
+        seed: randomSeed, // Force different questions
       });
 
       setCurrentQuestion({ ...question, questionNumber: 1 });
