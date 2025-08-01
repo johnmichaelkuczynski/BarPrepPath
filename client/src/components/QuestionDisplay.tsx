@@ -95,7 +95,6 @@ export function QuestionDisplay({
                       <div key={index} className="flex items-start p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
                         <RadioGroupItem value={letter} id={`option-${index}`} className="mt-1 mr-4" />
                         <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer">
-                          <span className="font-medium text-gray-900">({letter})</span>
                           <span className="ml-2">{option}</span>
                         </Label>
                       </div>
