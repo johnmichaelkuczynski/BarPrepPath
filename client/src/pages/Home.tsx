@@ -186,7 +186,7 @@ export default function Home() {
     if (!currentSession || !currentQuestion) return;
 
     if (testMode === 'diagnostic') {
-      // In diagnostic mode, store answer locally and move immediately to next question
+      // In diagnostic mode, store answer locally but DON'T auto-advance
       const storedAnswer = {
         sessionId: currentSession.id,
         questionNumber: currentQuestionNumber,
@@ -203,12 +203,14 @@ export default function Home() {
       setCurrentResponse(null);
       setShowExplanation(false);
       
+      // Check if this is the last question
       const nextQuestionNumber = currentQuestionNumber + 1;
-      if (nextQuestionNumber <= (currentSession.totalQuestions || 3)) {
-        generateNextQuestion(currentSession, nextQuestionNumber);
-      } else {
-        // Test completed - now submit all answers at once
+      if (nextQuestionNumber > (currentSession.totalQuestions || 3)) {
+        // Test completed - submit all answers and show results
         await submitAllDiagnosticAnswers();
+      } else {
+        // Move to next question
+        generateNextQuestion(currentSession, nextQuestionNumber);
       }
       return;
     }

@@ -233,10 +233,12 @@ export function QuestionDisplay({
                 {isSubmitting ? (
                   <>
                     <i className="fas fa-spinner fa-spin mr-2"></i>
-                    Next Question...
+                    Processing...
                   </>
-                ) : (
+                ) : questionNumber < totalQuestions ? (
                   "Next Question"
+                ) : (
+                  "Finish Test"
                 )}
               </Button>
             ) : showExplanation ? (
