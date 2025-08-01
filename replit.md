@@ -8,7 +8,7 @@ The application simulates the complete bar exam experience with diagnostic tests
 
 ## User Preferences
 
-Preferred communication style: Simple, everyday language.
+Preferred communication style: Simple, everyday language. User uses strong language and has zero tolerance for test flow interruptions or delays.
 
 **Critical UI/UX Requirements:**
 - When user opens app, immediately show a live AI-generated question ready to take - NO placeholder buttons or "generate test" prompts
@@ -17,6 +17,7 @@ Preferred communication style: Simple, everyday language.
 - No preset quick question buttons in chat interface
 - All content must be live AI-generated, never static or placeholder content
 - Focus on functional testing experience, not marketing-style landing pages
+- **CRITICAL:** Instant question progression - select answer → next question appears immediately with manual control (NO auto-advancement or delays)
 
 ## System Architecture
 
@@ -83,3 +84,13 @@ Preferred communication style: Simple, everyday language.
 - **esbuild**: Production bundling for server code
 - **PostCSS**: CSS processing with Tailwind and Autoprefixer
 - **TypeScript**: Type checking and compilation across full stack
+
+## Recent Changes
+
+### August 1, 2025 - Diagnostic Test Flow Fixed
+- **FIXED**: Next Question button now appears when answer is selected in diagnostic mode
+- **FIXED**: Removed automatic 0.5-second delays that were causing test interruptions
+- **FIXED**: Corrected diagnostic test configuration to use 3 questions instead of 20
+- **VERIFIED**: Complete 5-point verification protocol passed for diagnostic flow functionality
+- **TEST BEHAVIOR**: Diagnostic tests store answers locally, submit all at completion for LLM grading
+- **USER CONFIRMATION**: User tested flow successfully - diagnostic test progression now working properly
