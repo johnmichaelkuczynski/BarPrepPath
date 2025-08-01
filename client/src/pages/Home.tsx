@@ -275,7 +275,7 @@ export default function Home() {
   const handleNextQuestion = () => {
     if (!currentSession) return;
 
-    if (testMode === 'diagnostic' && currentQuestionNumber >= (currentSession.totalQuestions || 20)) {
+    if (testMode === 'diagnostic' && currentQuestionNumber >= (currentSession.totalQuestions || 3)) {
       // Reset for new test
       setCurrentSession(null);
       setCurrentQuestion(null);
@@ -286,7 +286,7 @@ export default function Home() {
     }
 
     const nextQuestionNumber = currentQuestionNumber + 1;
-    if (nextQuestionNumber <= (currentSession.totalQuestions || 20)) {
+    if (nextQuestionNumber <= (currentSession.totalQuestions || (testMode === 'diagnostic' ? 3 : 20))) {
       generateNextQuestion(currentSession, nextQuestionNumber);
     } else {
       // Test completed
@@ -477,7 +477,7 @@ export default function Home() {
                       {testMode === 'diagnostic' ? (
                         <div className="space-y-2">
                           <p className="text-lg text-gray-600">
-                            Question {currentQuestionNumber} of {currentSession.totalQuestions || 20}
+                            Question {currentQuestionNumber} of {currentSession.totalQuestions || (testMode === 'diagnostic' ? 3 : 20)}
                           </p>
                           <p className="text-sm text-gray-500">
                             Answer all questions, then get your full assessment at the end
@@ -498,7 +498,7 @@ export default function Home() {
                     <QuestionDisplay
                       question={currentQuestion}
                       questionNumber={currentQuestionNumber}
-                      totalQuestions={currentSession.totalQuestions || 20}
+                      totalQuestions={currentSession.totalQuestions || (testMode === 'diagnostic' ? 3 : 20)}
                       onSubmitAnswer={handleSubmitAnswer}
                       isSubmitting={submitQuestionResponse.isPending}
                       showExplanation={showExplanation}
