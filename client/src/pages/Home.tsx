@@ -21,6 +21,7 @@ export default function Home() {
   const [showExplanation, setShowExplanation] = useState(false);
   const [currentResponse, setCurrentResponse] = useState<QuestionResponse | null>(null);
   const [activeTab, setActiveTab] = useState('diagnostic');
+  const [activeTestTab, setActiveTestTab] = useState<string | null>(null); // Track which tab started the current test
   const [isGeneratingQuestion, setIsGeneratingQuestion] = useState(false);
   const [testMode, setTestMode] = useState<'practice' | 'diagnostic'>('diagnostic');
   const [allResponses, setAllResponses] = useState<QuestionResponse[]>([]);
@@ -71,6 +72,7 @@ export default function Home() {
     try {
       setIsGeneratingQuestion(true);
       setTestMode('diagnostic');
+      setActiveTestTab('diagnostic'); // Track that diagnostic tab started this test
       setAllResponses([]);
       setStoredAnswers([]);
       setShowExplanation(false);
@@ -103,6 +105,7 @@ export default function Home() {
     try {
       setIsGeneratingQuestion(true);
       setTestMode('practice');
+      setActiveTestTab('diagnostic'); // Practice questions start from diagnostic tab
       setAllResponses([]);
       setShowExplanation(false);
       
@@ -301,6 +304,7 @@ export default function Home() {
       setCurrentQuestion(null);
       setAllResponses([]);
       setShowExplanation(false);
+      setActiveTestTab(null);
       setActiveTab('analytics');
       return;
     }
@@ -313,7 +317,21 @@ export default function Home() {
       setCurrentSession(null);
       setCurrentQuestion(null);
       setShowExplanation(false);
+      setActiveTestTab(null);
     }
+  };
+
+  // Clear test state when switching tabs to prevent content bleeding
+  const handleTabChange = (newTab: string) => {
+    if (newTab !== activeTestTab && currentSession) {
+      // Only clear if switching away from the active test tab
+      setCurrentSession(null);
+      setCurrentQuestion(null);
+      setShowExplanation(false);
+      setAllResponses([]);
+      setActiveTestTab(null);
+    }
+    setActiveTab(newTab);
   };
 
   const startQuickTest = async (type: 'single-mc' | 'single-sa' | 'single-essay') => {
@@ -443,7 +461,7 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-3">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
               <TabsList className="grid w-full grid-cols-6 bg-gray-100 p-1 rounded-lg">
                 <TabsTrigger value="diagnostic" className="text-sm">Diagnostic</TabsTrigger>
                 <TabsTrigger value="full-exam" className="text-sm">Full Exam</TabsTrigger>
@@ -468,7 +486,7 @@ export default function Home() {
                       </div>
                     </CardContent>
                   </Card>
-                ) : currentQuestion && currentSession ? (
+                ) : currentQuestion && currentSession && activeTestTab === 'diagnostic' ? (
                   <div className="space-y-6">
                     <div className="text-center space-y-4">
                       <div className="flex items-center justify-between">
@@ -479,6 +497,7 @@ export default function Home() {
                             setCurrentQuestion(null);
                             setShowExplanation(false);
                             setAllResponses([]);
+                            setActiveTestTab(null);
                           }}
                           className="text-gray-600 hover:text-gray-800"
                         >
@@ -664,7 +683,7 @@ export default function Home() {
                   </p>
                 </div>
 
-                {currentQuestion && currentSession && activeTab === 'full-exam' ? (
+                {currentQuestion && currentSession && activeTestTab === 'full-exam' ? (
                   <div className="space-y-6">
                     <Card>
                       <CardContent className="p-6">
@@ -745,7 +764,7 @@ export default function Home() {
                   </p>
                 </div>
 
-                {currentQuestion && currentSession && activeTab === 'day1' ? (
+                {currentQuestion && currentSession && activeTestTab === 'day1' ? (
                   <div className="space-y-6">
                     <Card>
                       <CardContent className="p-6">
@@ -828,7 +847,7 @@ export default function Home() {
                   </p>
                 </div>
 
-                {currentQuestion && currentSession && activeTab === 'day2' ? (
+                {currentQuestion && currentSession && activeTestTab === 'day2' ? (
                   <div className="space-y-6">
                     <Card>
                       <CardContent className="p-6">
@@ -915,7 +934,7 @@ export default function Home() {
                   </p>
                 </div>
 
-                {currentQuestion && currentSession && activeTab === 'day3' ? (
+                {currentQuestion && currentSession && activeTestTab === 'day3' ? (
                   <div className="space-y-6">
                     <Card>
                       <CardContent className="p-6">
