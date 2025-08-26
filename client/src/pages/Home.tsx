@@ -23,6 +23,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState('diagnostic');
   const [activeTestTab, setActiveTestTab] = useState<string | null>(null); // Track which tab started the current test
   const [isGeneratingQuestion, setIsGeneratingQuestion] = useState(false);
+  const [isLoadingNextQuestion, setIsLoadingNextQuestion] = useState(false);
   const [testMode, setTestMode] = useState<'practice' | 'diagnostic'>('diagnostic');
   const [allResponses, setAllResponses] = useState<QuestionResponse[]>([]);
   const [storedAnswers, setStoredAnswers] = useState<Array<{
@@ -232,8 +233,13 @@ export default function Home() {
         // Test completed - submit all answers and show results
         await submitAllDiagnosticAnswers();
       } else {
-        // Generate next question on demand for diagnostic tests
-        await generateNextQuestion(currentSession, nextQuestionNumber);
+        // Show loading indicator and generate next question
+        setIsLoadingNextQuestion(true);
+        try {
+          await generateNextQuestion(currentSession, nextQuestionNumber);
+        } finally {
+          setIsLoadingNextQuestion(false);
+        }
       }
       return;
     }
@@ -295,10 +301,10 @@ export default function Home() {
     }
   };
 
-  const handleNextQuestion = () => {
+  const handleNextQuestion = async () => {
     if (!currentSession) return;
 
-    if (testMode === 'diagnostic' && currentQuestionNumber >= (currentSession.totalQuestions || 3)) {
+    if (testMode === 'diagnostic' && currentQuestionNumber >= (currentSession.totalQuestions || 20)) {
       // Reset for new test
       setCurrentSession(null);
       setCurrentQuestion(null);
@@ -311,7 +317,12 @@ export default function Home() {
 
     const nextQuestionNumber = currentQuestionNumber + 1;
     if (nextQuestionNumber <= (currentSession.totalQuestions || 20)) {
-      generateNextQuestion(currentSession, nextQuestionNumber);
+      setIsLoadingNextQuestion(true);
+      try {
+        await generateNextQuestion(currentSession, nextQuestionNumber);
+      } finally {
+        setIsLoadingNextQuestion(false);
+      }
     } else {
       // Test completed
       setCurrentSession(null);
@@ -521,9 +532,9 @@ export default function Home() {
                           <p className="text-sm text-gray-500">
                             Answer all questions, then get your full assessment at the end
                           </p>
-                          {allResponses.length > 0 && (
+                          {storedAnswers.length > 0 && (
                             <p className="text-xs text-blue-600">
-                              {allResponses.length} questions completed • Score: {Math.round((allResponses.filter(r => r.isCorrect).length / allResponses.length) * 100)}%
+                              {storedAnswers.length} questions completed • Question {currentQuestionNumber} of {currentSession.totalQuestions || 20}
                             </p>
                           )}
                         </div>
@@ -539,10 +550,23 @@ export default function Home() {
                       questionNumber={currentQuestionNumber}
                       totalQuestions={currentSession.totalQuestions || 20}
                       onSubmitAnswer={handleSubmitAnswer}
+                      onPrevious={currentQuestionNumber > 1 ? () => {
+                        const prevQuestionNumber = currentQuestionNumber - 1;
+                        setCurrentQuestionNumber(prevQuestionNumber);
+                        setShowExplanation(false);
+                        setCurrentResponse(null);
+                        // For diagnostic mode, just navigate without regenerating
+                        if (testMode === 'diagnostic') {
+                          // Navigate to previous question (questions are pre-generated)
+                          return;
+                        }
+                        // For practice mode, we'd need to store previous questions
+                      } : undefined}
                       isSubmitting={submitQuestionResponse.isPending}
                       showExplanation={showExplanation}
                       response={currentResponse || undefined}
                       isDiagnosticMode={testMode === 'diagnostic'}
+                      isLoadingNext={isLoadingNextQuestion}
                     />
 
                     {showExplanation && testMode === 'practice' && (

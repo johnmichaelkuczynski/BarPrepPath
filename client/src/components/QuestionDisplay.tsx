@@ -19,6 +19,7 @@ interface QuestionDisplayProps {
   showExplanation?: boolean;
   response?: QuestionResponse;
   isDiagnosticMode?: boolean;
+  isLoadingNext?: boolean;
 }
 
 export function QuestionDisplay({
@@ -32,6 +33,7 @@ export function QuestionDisplay({
   showExplanation = false,
   response,
   isDiagnosticMode = false,
+  isLoadingNext = false,
 }: QuestionDisplayProps) {
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [startTime] = useState(Date.now());
@@ -103,12 +105,14 @@ export function QuestionDisplay({
                 <div className="space-y-4">
                   {question.options.map((option, index) => {
                     const letter = String.fromCharCode(65 + index); // A, B, C, D
+                    // Remove duplicate letters from option text (e.g., "A) A) Jane must file..." becomes "Jane must file...")
+                    const cleanedOption = option.replace(/^[A-Z]\)\s*[A-Z]\)\s*/, '').replace(/^[A-Z]\)\s*/, '');
                     return (
                       <div key={index} className="flex items-start p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
                         <RadioGroupItem value={option} id={`option-${index}`} className="mt-1 mr-4" />
                         <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer">
                           <span className="font-medium mr-2">{letter})</span>
-                          <span>{option}</span>
+                          <span>{cleanedOption}</span>
                         </Label>
                       </div>
                     );
@@ -233,13 +237,13 @@ export function QuestionDisplay({
             ) : !showExplanation && isDiagnosticMode && selectedAnswer.trim() ? (
               <Button
                 onClick={handleSubmit}
-                disabled={isSubmitting}
+                disabled={isSubmitting || isLoadingNext}
                 className="bg-primary hover:bg-blue-700"
               >
-                {isSubmitting ? (
+                {isSubmitting || isLoadingNext ? (
                   <>
                     <i className="fas fa-spinner fa-spin mr-2"></i>
-                    Processing...
+                    {isLoadingNext ? "Loading Next Question..." : "Processing..."}
                   </>
                 ) : questionNumber < totalQuestions ? (
                   "Next Question"
