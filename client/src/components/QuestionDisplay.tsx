@@ -57,10 +57,10 @@ export function QuestionDisplay({
 
   const getLLMDisplayName = (provider: LLMProvider) => {
     const names = {
-      openai: "OpenAI GPT-4",
-      anthropic: "Claude 3 Opus",
-      deepseek: "DeepSeek-V2",
-      perplexity: "Perplexity"
+      openai: "Zhi 1",
+      anthropic: "Zhi 2", 
+      deepseek: "Zhi 3",
+      perplexity: "Zhi 4"
     };
     return names[provider] || provider;
   };

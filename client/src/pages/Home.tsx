@@ -51,10 +51,10 @@ export default function Home() {
   const { data: analyticsData } = useUserAnalytics(userId);
 
   const providerOptions = [
-    { value: 'openai', label: 'OpenAI GPT-4' },
-    { value: 'anthropic', label: 'Claude Sonnet 4' },
-    { value: 'deepseek', label: 'DeepSeek-V2' },
-    { value: 'perplexity', label: 'Perplexity' },
+    { value: 'openai', label: 'Zhi 1' },
+    { value: 'anthropic', label: 'Zhi 2' },
+    { value: 'deepseek', label: 'Zhi 3' },
+    { value: 'perplexity', label: 'Zhi 4' },
   ];
 
   const subjectOptions = [
