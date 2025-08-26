@@ -70,7 +70,7 @@ export function ChatSidebar({ userId, selectedProvider }: ChatSidebarProps) {
           Ask questions about law concepts or get study help
         </p>
         <div className="text-xs text-gray-500">
-          Powered by {getLLMDisplayName(selectedProvider)}
+          Powered by Zhi 1
         </div>
       </CardHeader>
 
