@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useSendChatMessage, useChatHistory } from "@/hooks/useAI";
+import { useSendChatMessage, useChatHistory, useClearChatHistory } from "@/hooks/useAI";
 import type { LLMProvider, ChatMessage } from "@/types";
 
 interface ChatSidebarProps {
@@ -17,6 +17,7 @@ export function ChatSidebar({ userId, selectedProvider }: ChatSidebarProps) {
   
   const { data: chatHistory = [], refetch } = useChatHistory(userId, 20) as { data: ChatMessage[], refetch: () => void };
   const sendMessage = useSendChatMessage();
+  const clearHistory = useClearChatHistory();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -65,12 +66,26 @@ export function ChatSidebar({ userId, selectedProvider }: ChatSidebarProps) {
   return (
     <Card className="h-full flex flex-col">
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg">AI Legal Assistant</CardTitle>
-        <p className="text-sm text-gray-600">
-          Ask questions about law concepts or get study help
-        </p>
-        <div className="text-xs text-gray-500">
-          Powered by Zhi 1
+        <div className="flex justify-between items-start">
+          <div className="flex-1">
+            <CardTitle className="text-lg">AI Legal Assistant</CardTitle>
+            <p className="text-sm text-gray-600">
+              Ask questions about law concepts or get study help
+            </p>
+            <div className="text-xs text-gray-500">
+              Powered by Zhi 1
+            </div>
+          </div>
+          <Button
+            onClick={() => clearHistory.mutate(userId)}
+            disabled={clearHistory.isPending || chatHistory.length === 0}
+            variant="outline"
+            size="sm"
+            className="ml-4"
+          >
+            <i className="fas fa-trash mr-2"></i>
+            {clearHistory.isPending ? "Clearing..." : "Clear Chat"}
+          </Button>
         </div>
       </CardHeader>
 

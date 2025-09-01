@@ -208,6 +208,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete('/api/users/:userId/chat-history', async (req, res) => {
+    try {
+      await storage.clearUserChatHistory(req.params.userId);
+      res.json({ success: true, message: "Chat history cleared" });
+    } catch (error) {
+      console.error("Error clearing chat history:", error);
+      res.status(500).json({ message: "Failed to clear chat history" });
+    }
+  });
+
   // Study recommendations
   app.get('/api/users/:userId/recommendations', async (req, res) => {
     try {

@@ -31,6 +31,7 @@ export interface IStorage {
   // Chat operations
   createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
   getUserChatHistory(userId: string, limit?: number): Promise<ChatMessage[]>;
+  clearUserChatHistory(userId: string): Promise<void>;
 
   // Study recommendations
   getUserRecommendations(userId: string): Promise<StudyRecommendation[]>;
@@ -150,6 +151,10 @@ export class DatabaseStorage implements IStorage {
       .where(eq(chatMessages.userId, userId))
       .orderBy(desc(chatMessages.createdAt))
       .limit(limit);
+  }
+
+  async clearUserChatHistory(userId: string): Promise<void> {
+    await db.delete(chatMessages).where(eq(chatMessages.userId, userId));
   }
 
   async getUserRecommendations(userId: string): Promise<StudyRecommendation[]> {

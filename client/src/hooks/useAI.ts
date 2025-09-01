@@ -116,6 +116,18 @@ export function useChatHistory(userId: string, limit?: number) {
   });
 }
 
+export function useClearChatHistory() {
+  return useMutation({
+    mutationFn: async (userId: string) => {
+      const response = await apiRequest('DELETE', `/api/users/${userId}/chat-history`);
+      return response.json();
+    },
+    onSuccess: (_, userId) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/users', userId, 'chat-history'] });
+    },
+  });
+}
+
 export function useCreateDiagnosticTest() {
   return useMutation({
     mutationFn: async (params: {
