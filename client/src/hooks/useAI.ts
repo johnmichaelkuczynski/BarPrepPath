@@ -106,7 +106,12 @@ export function useSendChatMessage() {
 
 export function useChatHistory(userId: string, limit?: number) {
   return useQuery({
-    queryKey: ['/api/users', userId, 'chat-history', { limit }],
+    queryKey: ['/api/users', userId, 'chat-history', limit],
+    queryFn: async () => {
+      const url = `/api/users/${userId}/chat-history${limit ? `?limit=${limit}` : ''}`;
+      const response = await apiRequest('GET', url);
+      return response.json();
+    },
     enabled: !!userId,
   });
 }
