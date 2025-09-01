@@ -147,7 +147,7 @@ export function ChatSidebar({ userId, selectedProvider }: ChatSidebarProps) {
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ask about legal concepts, study strategies, or specific questions..."
-              className="w-full min-h-[100px] p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full min-h-[200px] p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               disabled={sendMessage.isPending}
             />
             <div className="flex justify-end">
