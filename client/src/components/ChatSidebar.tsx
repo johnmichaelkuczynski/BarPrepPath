@@ -287,7 +287,15 @@ export function ChatSidebar({ userId, selectedProvider }: ChatSidebarProps) {
               className="w-full min-h-[400px] p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               disabled={sendMessage.isPending}
             />
-            <div className="flex justify-end">
+            <div className="flex justify-between">
+              <Button
+                onClick={downloadEntireExchange}
+                disabled={chatHistory.length === 0}
+                variant="outline"
+                className="px-4"
+              >
+                <i className="fas fa-download mr-2"></i>Download TXT
+              </Button>
               <Button
                 onClick={handleSendMessage}
                 disabled={!message.trim() || sendMessage.isPending}
