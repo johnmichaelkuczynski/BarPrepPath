@@ -155,16 +155,22 @@ export class AIService {
 
   private buildGradingPrompt(question: string, userAnswer: string, correctAnswer: string | undefined, type: string): string {
     if (type === 'multiple-choice') {
-      return `Here is the user's selected answer: ${userAnswer}
+      return `Grade this multiple choice question answer:
 
 Question: ${question}
+User's Answer: ${userAnswer}
+${correctAnswer ? `Correct Answer: ${correctAnswer}` : ''}
 
-Was it correct? If not, what is the correct answer and why? Provide a realistic score out of 100 based on legal reasoning and accuracy.
+CRITICAL: For multiple choice questions, scoring is binary:
+- If the answer is CORRECT: score = 100
+- If the answer is WRONG: score = 0
+
+Do NOT give partial credit like 85/100 for multiple choice. It's either completely right (100) or completely wrong (0).
 
 Respond in JSON format:
 {
-  "score": number (0-100),
-  "feedback": "detailed explanation",
+  "score": number (either 0 or 100),
+  "feedback": "detailed explanation of why the answer is correct or incorrect",
   "strengths": ["strength1", "strength2"],
   "improvements": ["improvement1", "improvement2"],
   "correctAnswer": "the correct answer if user was wrong"
