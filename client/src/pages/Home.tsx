@@ -352,6 +352,7 @@ export default function Home() {
       setAllResponses([]);
       setStoredAnswers([]);
       setShowExplanation(false);
+      setActiveTestTab('diagnostic'); // Set active test tab to show questions
 
       const result = await createDiagnosticTest.mutateAsync({
         type,
@@ -497,7 +498,7 @@ export default function Home() {
                       </div>
                     </CardContent>
                   </Card>
-                ) : currentQuestion && currentSession && activeTestTab === 'diagnostic' ? (
+                ) : currentQuestion && currentSession && (activeTestTab === 'diagnostic' || testMode === 'practice') ? (
                   <div className="space-y-6">
                     <div className="text-center space-y-4">
                       <div className="flex items-center justify-between">
