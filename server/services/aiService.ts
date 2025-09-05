@@ -78,13 +78,9 @@ export class AIService {
     // Use calibration grading for essays and short answers to ensure fairness
     const useCalibration = type === 'essay' || type === 'short-answer';
     
-    console.log(`🔍 [AI SERVICE DEBUG] Question type: ${type}, useCalibration: ${useCalibration}`);
-    
     const prompt = useCalibration 
       ? buildCalibrationPrompt(userAnswer, question)
       : this.buildGradingPrompt(question, userAnswer, correctAnswer, type);
-      
-    console.log(`🔍 [AI SERVICE DEBUG] Using ${useCalibration ? 'CALIBRATION' : 'MULTIPLE CHOICE'} grading prompt`);
 
     switch (provider) {
       case 'openai':

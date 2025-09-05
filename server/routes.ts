@@ -91,7 +91,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = responseSchema.parse(req.body);
       
       // Grade the response using AI
-      console.log(`🔍 [DEBUG] Grading question with type: ${validatedData.questionType}`);
       const grading = await aiService.gradeResponse(
         validatedData.llmProvider,
         validatedData.questionText,
@@ -99,7 +98,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         validatedData.correctAnswer,
         validatedData.questionType
       );
-      console.log(`🔍 [DEBUG] Grading result:`, { score: grading.score, hasCorrectAnswer: !!grading.correctAnswer });
 
       // Let the LLM determine correctness completely - no hardcoded logic
       // For bar exam standards, 90+ is excellent, 70+ is passing
