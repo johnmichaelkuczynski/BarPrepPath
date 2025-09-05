@@ -78,9 +78,13 @@ export class AIService {
     // Use calibration grading for essays and short answers to ensure fairness
     const useCalibration = type === 'essay' || type === 'short-answer';
     
+    console.log(`🔍 [AI SERVICE DEBUG] Question type: ${type}, useCalibration: ${useCalibration}`);
+    
     const prompt = useCalibration 
       ? buildCalibrationPrompt(userAnswer, question)
       : this.buildGradingPrompt(question, userAnswer, correctAnswer, type);
+      
+    console.log(`🔍 [AI SERVICE DEBUG] Using ${useCalibration ? 'CALIBRATION' : 'MULTIPLE CHOICE'} grading prompt`);
 
     switch (provider) {
       case 'openai':
@@ -268,15 +272,6 @@ Respond in JSON format:
       console.error('Failed to parse:', responseText);
       throw new Error(`Failed to parse Anthropic response: ${error.message}`);
     }
-    return {
-      type: type as any,
-      subject: result.subject || subject,
-      questionText: result.questionText,
-      options: result.options,
-      correctAnswer: result.correctAnswer,
-      explanation: result.explanation,
-      difficulty: result.difficulty as any || difficulty,
-    };
   }
 
   private async generateQuestionDeepSeek(prompt: string, type: string, subject: string, difficulty: string): Promise<AIQuestion> {

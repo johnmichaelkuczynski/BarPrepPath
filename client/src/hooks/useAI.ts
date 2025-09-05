@@ -9,6 +9,7 @@ export function useGenerateQuestion() {
       type: QuestionType;
       subject: string;
       difficulty?: 'easy' | 'medium' | 'hard';
+      seed?: string;
     }) => {
       const response = await apiRequest('POST', '/api/generate-question', params);
       return response.json();

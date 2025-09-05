@@ -142,9 +142,12 @@ export default function Home() {
       const randomDifficulty = difficulties[Math.floor(Math.random() * difficulties.length)];
       const randomSeed = Math.random().toString(36).substring(7); // Add randomization
       
+      // Use current question type if available, otherwise default to multiple-choice
+      const questionType = currentQuestion?.type || 'multiple-choice';
+      
       const question = await generateQuestion.mutateAsync({
         provider: selectedProvider,
-        type: 'multiple-choice',
+        type: questionType,
         subject: randomSubject,
         difficulty: randomDifficulty,
         seed: randomSeed, // Force different questions
