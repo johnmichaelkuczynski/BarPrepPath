@@ -251,13 +251,6 @@ export function QuestionDisplay({
                   "Finish Test"
                 )}
               </Button>
-            ) : showExplanation ? (
-              <Button
-                onClick={() => window.location.reload()}
-                className="bg-primary hover:bg-blue-700"
-              >
-                Continue
-              </Button>
             ) : null}
           </div>
         </div>
