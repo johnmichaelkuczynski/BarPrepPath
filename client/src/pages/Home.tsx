@@ -971,14 +971,70 @@ export default function Home() {
                         <CardTitle>Practice Options</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-3">
-                        <Button variant="outline" className="w-full">Mixed Topic Practice</Button>
-                        <Button variant="outline" className="w-full">Constitutional Law</Button>
-                        <Button variant="outline" className="w-full">Contracts</Button>
-                        <Button variant="outline" className="w-full">Torts</Button>
-                        <Button variant="outline" className="w-full">Criminal Law</Button>
-                        <Button variant="outline" className="w-full">Evidence</Button>
-                        <Button variant="outline" className="w-full">Real Property</Button>
-                        <Button variant="outline" className="w-full">Civil Procedure</Button>
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => startQuickTest('single-mc')}
+                          disabled={isGeneratingQuestion}
+                        >
+                          Mixed Topic Practice
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => startQuickTest('single-mc')}
+                          disabled={isGeneratingQuestion}
+                        >
+                          Constitutional Law
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => startQuickTest('single-mc')}
+                          disabled={isGeneratingQuestion}
+                        >
+                          Contracts
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => startQuickTest('single-mc')}
+                          disabled={isGeneratingQuestion}
+                        >
+                          Torts
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => startQuickTest('single-mc')}
+                          disabled={isGeneratingQuestion}
+                        >
+                          Criminal Law
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => startQuickTest('single-mc')}
+                          disabled={isGeneratingQuestion}
+                        >
+                          Evidence
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => startQuickTest('single-mc')}
+                          disabled={isGeneratingQuestion}
+                        >
+                          Real Property
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => startQuickTest('single-mc')}
+                          disabled={isGeneratingQuestion}
+                        >
+                          Civil Procedure
+                        </Button>
                       </CardContent>
                     </Card>
                   </div>
@@ -1058,12 +1114,54 @@ export default function Home() {
                         <CardTitle>Individual Essay Practice</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-3">
-                        <Button variant="outline" className="w-full">Business Associations</Button>
-                        <Button variant="outline" className="w-full">Family Law</Button>
-                        <Button variant="outline" className="w-full">Secured Transactions</Button>
-                        <Button variant="outline" className="w-full">Trusts & Estates</Button>
-                        <Button variant="outline" className="w-full">Real Property</Button>
-                        <Button variant="outline" className="w-full">Mixed Practice</Button>
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => startQuickTest('single-essay')}
+                          disabled={isGeneratingQuestion}
+                        >
+                          Business Associations
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => startQuickTest('single-essay')}
+                          disabled={isGeneratingQuestion}
+                        >
+                          Family Law
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => startQuickTest('single-essay')}
+                          disabled={isGeneratingQuestion}
+                        >
+                          Secured Transactions
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => startQuickTest('single-essay')}
+                          disabled={isGeneratingQuestion}
+                        >
+                          Trusts & Estates
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => startQuickTest('single-essay')}
+                          disabled={isGeneratingQuestion}
+                        >
+                          Real Property
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => startQuickTest('single-essay')}
+                          disabled={isGeneratingQuestion}
+                        >
+                          Mixed Practice
+                        </Button>
                       </CardContent>
                     </Card>
                   </div>
