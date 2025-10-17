@@ -430,6 +430,7 @@ export default function Home() {
       
       // Switch to the appropriate tab to show the exam
       setActiveTestTab(type);
+      setActiveTab(type); // Also switch the visual tab
       
       toast({
         title: "Exam Generated!",
