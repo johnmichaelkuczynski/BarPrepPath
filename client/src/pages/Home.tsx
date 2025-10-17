@@ -356,6 +356,7 @@ export default function Home() {
       setStoredAnswers([]);
       setShowExplanation(false);
       setActiveTestTab('diagnostic'); // Set active test tab to show questions
+      setActiveTab('diagnostic'); // Switch to diagnostic tab to display the question
 
       const result = await createDiagnosticTest.mutateAsync({
         type,
@@ -426,6 +427,9 @@ export default function Home() {
       setCurrentQuestionNumber(1);
       setShowExplanation(false);
       setCurrentResponse(null);
+      
+      // Switch to the appropriate tab to show the exam
+      setActiveTestTab(type);
       
       toast({
         title: "Exam Generated!",
@@ -856,10 +860,38 @@ export default function Home() {
                         <CardTitle>Practice Options</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-3">
-                        <Button variant="outline" className="w-full">Individual MPT Task</Button>
-                        <Button variant="outline" className="w-full">Writing Drills</Button>
-                        <Button variant="outline" className="w-full">Short Answer Practice</Button>
-                        <Button variant="outline" className="w-full">Texas Procedure Drills</Button>
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => startQuickTest('single-essay')}
+                          disabled={isGeneratingQuestion}
+                        >
+                          Individual MPT Task
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => startQuickTest('single-essay')}
+                          disabled={isGeneratingQuestion}
+                        >
+                          Writing Drills
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => startQuickTest('single-sa')}
+                          disabled={isGeneratingQuestion}
+                        >
+                          Short Answer Practice
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => startQuickTest('single-sa')}
+                          disabled={isGeneratingQuestion}
+                        >
+                          Texas Procedure Drills
+                        </Button>
                       </CardContent>
                     </Card>
                   </div>
