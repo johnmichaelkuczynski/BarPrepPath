@@ -266,9 +266,10 @@ export default function Home() {
       setShowExplanation(true);
     } catch (error) {
       console.error('Failed to submit answer:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       toast({
         title: "Error",
-        description: "Failed to submit answer. Please try again.",
+        description: `Failed to submit answer: ${errorMessage}`,
         variant: "destructive",
       });
     }

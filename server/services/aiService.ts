@@ -2,6 +2,16 @@ import OpenAI from "openai";
 import Anthropic from '@anthropic-ai/sdk';
 import { buildCalibrationPrompt } from './gradingCalibration';
 
+// Timeout helper to prevent hanging requests
+const withTimeout = <T>(promise: Promise<T>, timeoutMs: number = 60000): Promise<T> => {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => 
+      setTimeout(() => reject(new Error(`Request timed out after ${timeoutMs}ms`)), timeoutMs)
+    )
+  ]);
+};
+
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const DEFAULT_OPENAI_MODEL = "gpt-4o";
 
@@ -336,22 +346,26 @@ Respond in JSON format:
   }
 
   private async gradeResponseOpenAI(prompt: string): Promise<AIGrading> {
-    const response = await this.openai.chat.completions.create({
-      model: DEFAULT_OPENAI_MODEL,
-      messages: [{ role: 'user', content: prompt }],
-      response_format: { type: "json_object" },
-    });
+    const response = await withTimeout(
+      this.openai.chat.completions.create({
+        model: DEFAULT_OPENAI_MODEL,
+        messages: [{ role: 'user', content: prompt }],
+        response_format: { type: "json_object" },
+      })
+    );
 
     return JSON.parse(response.choices[0].message.content || '{}');
   }
 
   private async gradeResponseAnthropic(prompt: string): Promise<AIGrading> {
-    const response = await this.anthropic.messages.create({
-      model: DEFAULT_ANTHROPIC_MODEL,
-      max_tokens: 1000,
-      messages: [{ role: 'user', content: prompt }],
-      system: "You are an expert grader for bar exam responses. Always respond with valid JSON only, no markdown formatting or code blocks."
-    });
+    const response = await withTimeout(
+      this.anthropic.messages.create({
+        model: DEFAULT_ANTHROPIC_MODEL,
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }],
+        system: "You are an expert grader for bar exam responses. Always respond with valid JSON only, no markdown formatting or code blocks."
+      })
+    );
 
     let responseText = (response.content[0] as any).text;
     
@@ -378,18 +392,20 @@ Respond in JSON format:
   }
 
   private async gradeResponseDeepSeek(prompt: string): Promise<AIGrading> {
-    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY || process.env.DEEPSEEK_API_KEY_ENV_VAR || "default_key"}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [{ role: 'user', content: prompt }],
-        response_format: { type: "json_object" },
-      }),
-    });
+    const response = await withTimeout(
+      fetch('https://api.deepseek.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY || process.env.DEEPSEEK_API_KEY_ENV_VAR || "default_key"}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          messages: [{ role: 'user', content: prompt }],
+          response_format: { type: "json_object" },
+        }),
+      })
+    );
 
     const data = await response.json();
     let responseContent = data.choices[0].message.content || '{}';
@@ -401,21 +417,23 @@ Respond in JSON format:
   }
 
   private async gradeResponsePerplexity(prompt: string): Promise<AIGrading> {
-    const response = await fetch('https://api.perplexity.ai/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY || process.env.PERPLEXITY_API_KEY_ENV_VAR || "default_key"}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'llama-3.1-sonar-small-128k-online',
-        messages: [
-          { role: 'system', content: 'You are an expert grader for bar exam responses. Always respond with valid JSON.' },
-          { role: 'user', content: prompt }
-        ],
-        stream: false,
-      }),
-    });
+    const response = await withTimeout(
+      fetch('https://api.perplexity.ai/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY || process.env.PERPLEXITY_API_KEY_ENV_VAR || "default_key"}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'llama-3.1-sonar-small-128k-online',
+          messages: [
+            { role: 'system', content: 'You are an expert grader for bar exam responses. Always respond with valid JSON.' },
+            { role: 'user', content: prompt }
+          ],
+          stream: false,
+        }),
+      })
+    );
 
     const data = await response.json();
     return JSON.parse(data.choices[0].message.content || '{}');
