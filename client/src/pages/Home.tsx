@@ -555,6 +555,7 @@ export default function Home() {
                     </div>
 
                     <QuestionDisplay
+                      key={`${currentSession.id}-${currentQuestionNumber}`}
                       question={currentQuestion}
                       questionNumber={currentQuestionNumber}
                       totalQuestions={currentSession.totalQuestions || 20}
@@ -738,6 +739,7 @@ export default function Home() {
                     </Card>
 
                     <QuestionDisplay
+                      key={`${currentSession.id}-${currentQuestionNumber}`}
                       question={currentQuestion}
                       questionNumber={currentQuestionNumber}
                       totalQuestions={currentSession.totalQuestions || 228}
@@ -817,6 +819,7 @@ export default function Home() {
                     </Card>
 
                     <QuestionDisplay
+                      key={`${currentSession.id}-${currentQuestionNumber}`}
                       question={currentQuestion}
                       questionNumber={currentQuestionNumber}
                       totalQuestions={currentSession.totalQuestions || 22}
@@ -928,6 +931,7 @@ export default function Home() {
                     </Card>
 
                     <QuestionDisplay
+                      key={`${currentSession.id}-${currentQuestionNumber}`}
                       question={currentQuestion}
                       questionNumber={currentQuestionNumber}
                       totalQuestions={currentSession.totalQuestions || 200}
@@ -1071,6 +1075,7 @@ export default function Home() {
                     </Card>
 
                     <QuestionDisplay
+                      key={`${currentSession.id}-${currentQuestionNumber}`}
                       question={currentQuestion}
                       questionNumber={currentQuestionNumber}
                       totalQuestions={currentSession.totalQuestions || 6}
