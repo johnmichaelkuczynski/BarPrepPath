@@ -87,6 +87,15 @@ Preferred communication style: Simple, everyday language. User uses strong langu
 
 ## Recent Changes
 
+### October 17, 2025 - Essay Submission Error Fixed
+- **FIXED**: Essay answer submission failures due to payload size limits and hanging requests
+- **ROOT CAUSE**: Express had 100kb default body limit (long essays exceeded this) and AI grading had no timeout protection
+- **SOLUTION 1**: Increased Express body size limit to 10MB for JSON and URL-encoded data
+- **SOLUTION 2**: Added 60-second timeout wrapper for all AI grading API calls (OpenAI, Anthropic, DeepSeek, Perplexity)
+- **SOLUTION 3**: Enhanced error messages to show actual backend error details instead of generic "Failed to submit answer"
+- **IMPACT**: Long essay answers now submit successfully, hanging requests timeout gracefully with clear error messages
+- **VERIFIED**: Architect review confirmed fixes resolve submission failures without security issues
+
 ### October 17, 2025 - Question State Persistence Bug Fixed
 - **FIXED**: Continue button now properly clears previous answer when advancing to next question
 - **ROOT CAUSE**: QuestionDisplay components had no key prop, causing React to reuse component instances and retain internal answer state
