@@ -88,11 +88,12 @@ Preferred communication style: Simple, everyday language. User uses strong langu
 ## Recent Changes
 
 ### October 17, 2025 - All Day Exam and Practice Options Fixed
-- **FIXED**: All exam generation buttons (Day 1, Day 2, Day 3) now properly display exams after generation (added tab switching)
+- **FIXED**: All exam generation buttons (Day 1, Day 2, Day 3) now properly display exams after generation (added complete tab switching with both activeTestTab AND activeTab)
 - **FIXED**: All Day 1 Practice Options buttons now functional (Individual MPT Task, Writing Drills, Short Answer Practice, Texas Procedure Drills)
-- **FIXED**: All Day 2 Practice Options buttons now functional (Mixed Topic Practice, Constitutional Law, Contracts, Torts, Criminal Law, Evidence, Real Property, Civil Procedure)
+- **FIXED**: All Day 2 Practice Options buttons now functional (Mixed Topic Practice, Constitutional Law, Contracts, Torts, Criminal Law, Evidence, Real Property, Civil Procedure)  
 - **FIXED**: All Day 3 Individual Essay Practice buttons now functional (Business Associations, Family Law, Secured Transactions, Trusts & Estates, Real Property, Mixed Practice)
 - **FIXED**: Generate New Question button now uses current question type instead of defaulting to multiple-choice
+- **CRITICAL FIX**: Added setActiveTab(type) to generateFullExam - was only setting activeTestTab, causing exams to generate but not display visually
 - **IMPROVEMENT**: Added automatic tab switching when practice buttons are clicked to ensure questions are visible
 - **VERIFIED**: All exam flows tested and confirmed working by architect review
 
