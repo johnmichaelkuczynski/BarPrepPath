@@ -87,6 +87,13 @@ Preferred communication style: Simple, everyday language. User uses strong langu
 
 ## Recent Changes
 
+### October 17, 2025 - Question State Persistence Bug Fixed
+- **FIXED**: Continue button now properly clears previous answer when advancing to next question
+- **ROOT CAUSE**: QuestionDisplay components had no key prop, causing React to reuse component instances and retain internal answer state
+- **SOLUTION**: Added unique key prop (`${currentSession.id}-${currentQuestionNumber}`) to all 5 QuestionDisplay components (diagnostic/practice, full exam, day 1, day 2, day 3)
+- **IMPACT**: Forces React to unmount old component and mount fresh one when question changes, resetting all internal state including selected answers
+- **VERIFIED**: Architect review confirmed fix with no regressions or side effects
+
 ### October 17, 2025 - All Day Exam and Practice Options Fixed
 - **FIXED**: All exam generation buttons (Day 1, Day 2, Day 3) now properly display exams after generation (added complete tab switching with both activeTestTab AND activeTab)
 - **FIXED**: All Day 1 Practice Options buttons now functional (Individual MPT Task, Writing Drills, Short Answer Practice, Texas Procedure Drills)
