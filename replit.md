@@ -87,6 +87,13 @@ Preferred communication style: Simple, everyday language. User uses strong langu
 
 ## Recent Changes
 
+### October 17, 2025 - Continue Button Page Reload Bug Fixed
+- **FIXED**: Continue button after practice exercises was reloading entire page and sending user back to main menu
+- **ROOT CAUSE**: QuestionDisplay component had a "Continue" button that called window.location.reload() when explanation was shown
+- **SOLUTION**: Removed the problematic Continue button from QuestionDisplay - parent component (Home.tsx) now fully controls post-explanation flow
+- **IMPACT**: Practice mode users now see "Generate Another Practice Question" button after completing a question, no more accidental page reloads
+- **VERIFIED**: Architect review confirmed fix resolves reload issue without breaking other flows
+
 ### October 17, 2025 - Essay Submission Error Fixed
 - **FIXED**: Essay answer submission failures due to payload size limits and hanging requests
 - **ROOT CAUSE**: Express had 100kb default body limit (long essays exceeded this) and AI grading had no timeout protection
